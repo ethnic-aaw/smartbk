@@ -1,0 +1,10 @@
+# Deny direct access to API index
+<Files "index.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# Enable CORS (if needed for frontend)
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
