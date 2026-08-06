@@ -21,10 +21,17 @@ $input = get_json_input();
 
 $kode = trim($input['kode'] ?? $existing['kode']);
 $nama = trim($input['nama'] ?? $existing['nama']);
+$komponen = trim($input['komponen'] ?? $existing['komponen']);
 $kategori = trim($input['kategori'] ?? $existing['kategori']);
 $bobot_poin = isset($input['bobot_poin']) ? (int) $input['bobot_poin'] : (int) $existing['bobot_poin'];
 $deskripsi = trim($input['deskripsi'] ?? $existing['deskripsi']);
 $konsekuensi = trim($input['konsekuensi'] ?? $existing['konsekuensi']);
+
+$validKomponen = [
+    'Kehadiran', 'Kegiatan Belajar Mengajar', 'Pakaian Seragam', 'Makan dan Minum',
+    'Izin Meninggalkan Sekolah', 'Perkelahian', 'Praktik Kerja Lapangan (PKL)',
+    'Kebersihan Lingkungan', 'Lain-lain',
+];
 
 if ($kode === '') {
     api_error('Kode pelanggaran wajib diisi.');
@@ -34,6 +41,9 @@ if ($nama === '') {
 }
 if (!in_array($kategori, ['Kedisiplinan', 'Tata Krama', 'Kekerasan', 'Narkoba', 'Lainnya'], true)) {
     api_error('Kategori tidak valid.');
+}
+if (!in_array($komponen, $validKomponen, true)) {
+    api_error('Komponen tidak valid.');
 }
 if ($bobot_poin <= 0 || $bobot_poin > 100) {
     api_error('Bobot poin harus antara 1-100.');
@@ -47,10 +57,11 @@ if ($kode !== $existing['kode']) {
 }
 
 $stmt = db_query(
-    'UPDATE jenis_pelanggaran SET kode = ?, nama = ?, kategori = ?, bobot_poin = ?, deskripsi = ?, konsekuensi = ? WHERE id = ?',
+    'UPDATE jenis_pelanggaran SET kode = ?, nama = ?, komponen = ?, kategori = ?, bobot_poin = ?, deskripsi = ?, konsekuensi = ? WHERE id = ?',
     [
         $kode,
         $nama,
+        $komponen,
         $kategori,
         $bobot_poin,
         $deskripsi !== '' ? $deskripsi : null,

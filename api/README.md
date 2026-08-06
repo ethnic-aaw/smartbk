@@ -80,6 +80,11 @@ Cek status autentikasi user.
 #### GET /api/dashboard/stats.php
 Mendapatkan statistik dashboard.
 
+Query param opsional:
+- `periode` — periode Top 10: `harian` (hari ini) / `minggu` (7 hari) / `bulan` (bulan ini) / `tahun` (tahun ajaran, default).
+
+Untuk role Wali Kelas, seluruh data statistik otomatis dibatasi hanya untuk kelasnya.
+
 **Response:**
 ```json
 {
@@ -88,10 +93,14 @@ Mendapatkan statistik dashboard.
     "summary": {
       "total_siswa": 150,
       "total_kelas": 12,
-      "pelanggaran_bulan": 45,
+      "pelanggaran_tahun": 45,
       "siswa_bermasalah": 8
     },
     "top_siswa": [...],
+    "ringkasan_komponen": [
+      { "komponen": "Kehadiran", "jumlah": 18, "total_poin": 40 },
+      { "komponen": "Lain-lain", "jumlah": 12, "total_poin": 55 }
+    ],
     "chart": {
       "labels": ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
       "data": [12, 15, 10, 20, 18, 25]

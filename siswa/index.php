@@ -9,7 +9,11 @@ $search = trim($_GET['q'] ?? '');
 $kelasFilter = (int) ($_GET['kelas'] ?? 0);
 $tahunFilter = trim($_GET['tahun'] ?? current_tahun_ajaran());
 $page = max(1, (int) ($_GET['page'] ?? 1));
-$perPage = 15;
+$perPageOptions = [10, 15, 25, 50, 100];
+$perPage = (int) ($_GET['per_page'] ?? 15);
+if (!in_array($perPage, $perPageOptions, true)) {
+    $perPage = 15;
+}
 
 $where = ['1 = 1'];
 $params = [];
@@ -105,6 +109,7 @@ require_once __DIR__ . '/../includes/header.php';
         <table>
             <thead>
                 <tr>
+                    <th style="text-align:center;">No</th>
                     <th>Foto</th>
                     <th>NIPD/NIS</th>
                     <th>Nama</th>
@@ -117,10 +122,11 @@ require_once __DIR__ . '/../includes/header.php';
             </thead>
             <tbody>
                 <?php if (!$siswaList): ?>
-                    <tr><td colspan="8" style="text-align:center; color:var(--text-muted);">Tidak ada data siswa.</td></tr>
+                    <tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Tidak ada data siswa.</td></tr>
                 <?php endif; ?>
-                <?php foreach ($siswaList as $s): ?>
+                <?php $nomor = $offset; foreach ($siswaList as $s): $nomor++; ?>
                     <tr>
+                        <td style="text-align:center;"><?= $nomor ?></td>
                         <td>
                             <?php if (!empty($s['foto']) && file_exists(__DIR__ . '/../assets/uploads/foto_siswa/' . $s['foto'])): ?>
                                 <img src="<?= rtrim(APP_BASE, '/') ?>/assets/uploads/foto_siswa/<?= e($s['foto']) ?>" alt="" class="table-avatar">
@@ -133,7 +139,7 @@ require_once __DIR__ . '/../includes/header.php';
                         <td><?= e($s['nama_kelas'] ? $s['nama_kelas'] . ' (' . $s['tahun_ajaran'] . ')' : '-') ?></td>
                         <td><?= e($s['jenis_kelamin']) ?></td>
                         <td><?= e($s['status']) ?></td>
-                        <td><?= poin_badge((int) $s['total_poin']) ?></td>
+                        <td><?= poin_badge((int) $s['total_poin']) ?> <?= fase_badge((int) $s['total_poin']) ?></td>
                         <td>
                             <div class="row-actions">
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/siswa/detail.php?id=<?= (int) $s['id'] ?>" class="ghost-btn">Detail</a>
@@ -149,27 +155,63 @@ require_once __DIR__ . '/../includes/header.php';
         </table>
     </div>
 
-    <?php if ($totalPages > 1): ?>
+    <?php if ($total > 0): ?>
         <div class="pagination">
             <?php
-            $qs = http_build_query(array_filter(['q' => $search, 'kelas' => $kelasFilter]));
+            $qs = http_build_query(array_filter(['q' => $search, 'tahun' => $tahunFilter, 'kelas' => $kelasFilter, 'per_page' => $perPage]));
             $qs = $qs !== '' ? '&' . $qs : '';
             $pageUrl = rtrim(APP_BASE, '/') . '/siswa/index.php?page=';
             ?>
             <span>Menampilkan <?= $total === 0 ? 0 : (($page - 1) * $perPage + 1) ?>–<?= min($page * $perPage, $total) ?> dari <?= $total ?> data</span>
-            <div style="display:flex;gap:6px;">
-                <?php if ($page > 1): ?>
-                    <a href="<?= $pageUrl ?><?= $page - 1 ?><?= $qs ?>">Prev</a>
-                <?php endif; ?>
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <?php if ($i === $page): ?>
-                        <span class="current"><?= $i ?></span>
-                    <?php else: ?>
-                        <a href="<?= $pageUrl ?><?= $i ?><?= $qs ?>"><?= $i ?></a>
+            <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                <form method="get" action="<?= rtrim(APP_BASE, '/') ?>/siswa/index.php" style="display:inline-flex;align-items:center;gap:6px;">
+                    <label for="per_page" style="font-size:13px;color:var(--text-muted);">Tampilkan</label>
+                    <select name="per_page" id="per_page" onchange="this.form.submit()">
+                        <?php foreach ($perPageOptions as $opt): ?>
+                            <option value="<?= $opt ?>" <?= $perPage === $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="hidden" name="q" value="<?= e($search) ?>">
+                    <input type="hidden" name="tahun" value="<?= e($tahunFilter) ?>">
+                    <input type="hidden" name="kelas" value="<?= (int) $kelasFilter ?>">
+                </form>
+                <?php if ($totalPages > 1): ?>
+                <div style="display:flex;gap:6px;">
+                    <?php if ($page > 1): ?>
+                        <a href="<?= $pageUrl ?><?= $page - 1 ?><?= $qs ?>">Prev</a>
                     <?php endif; ?>
-                <?php endfor; ?>
-                <?php if ($page < $totalPages): ?>
-                    <a href="<?= $pageUrl ?><?= $page + 1 ?><?= $qs ?>">Next</a>
+                    <?php
+                    $window = 2;
+                    $pagesToShow = [];
+                    for ($i = max(1, $page - $window); $i <= min($totalPages, $page + $window); $i++) {
+                        $pagesToShow[] = $i;
+                    }
+                    if (!in_array(1, $pagesToShow, true)) {
+                        array_unshift($pagesToShow, 1);
+                    }
+                    if (!in_array($totalPages, $pagesToShow, true)) {
+                        $pagesToShow[] = $totalPages;
+                    }
+                    $pagesToShow = array_values(array_unique($pagesToShow));
+                    sort($pagesToShow);
+
+                    $prevPage = 0;
+                    foreach ($pagesToShow as $p):
+                        if ($prevPage > 0 && $p - $prevPage > 1): ?>
+                            <span style="border:0;background:transparent;padding:6px 2px;">…</span>
+                        <?php endif;
+                        if ($p === $page): ?>
+                            <span class="current"><?= $p ?></span>
+                        <?php else: ?>
+                            <a href="<?= $pageUrl ?><?= $p ?><?= $qs ?>"><?= $p ?></a>
+                        <?php endif;
+                        $prevPage = $p;
+                    endforeach;
+                    ?>
+                    <?php if ($page < $totalPages): ?>
+                        <a href="<?= $pageUrl ?><?= $page + 1 ?><?= $qs ?>">Next</a>
+                    <?php endif; ?>
+                </div>
                 <?php endif; ?>
             </div>
         </div>

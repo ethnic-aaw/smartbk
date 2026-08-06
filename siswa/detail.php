@@ -98,6 +98,21 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-group"><label>Nama Orang Tua</label><div><?= e($siswa['nama_orang_tua'] ?: '-') ?></div></div>
             <div class="form-group"><label>No. HP Orang Tua</label><div><?= e($siswa['no_hp_orang_tua'] ?: '-') ?></div></div>
             <div class="form-group"><label>Total Poin</label><div><?= poin_badge($totalPoin) ?></div></div>
+            <div class="form-group">
+                <label>Fase Pelanggaran</label>
+                <div>
+                    <?php $fase = fase_pelanggaran($totalPoin); ?>
+                    <?php if ($fase): ?>
+                        <?= fase_badge($totalPoin) ?>
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+                            <?= e($fase['tindak_lanjut'] ?? '') ?>
+                            <?= !empty($fase['administrasi']) ? ' — ' . e($fase['administrasi']) : '' ?>
+                        </div>
+                    <?php else: ?>
+                        <span style="color:var(--text-muted);">-</span>
+                    <?php endif; ?>
+                </div>
+            </div>
             <div class="form-group"><label>Alamat</label><div><?= e($siswa['alamat'] ?: '-') ?></div></div>
         </div>
     </div>

@@ -27,6 +27,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <tr>
                     <th>Kode</th>
                     <th>Nama Pelanggaran</th>
+                    <th>Komponen</th>
                     <th>Kategori</th>
                     <th>Bobot Poin</th>
                     <th>Deskripsi</th>
@@ -36,12 +37,13 @@ require_once __DIR__ . '/../includes/header.php';
             </thead>
             <tbody>
                 <?php if (!$list): ?>
-                    <tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada jenis pelanggaran.</td></tr>
+                    <tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Belum ada jenis pelanggaran.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($list as $p): ?>
                     <tr>
                         <td><strong><?= e($p['kode']) ?></strong></td>
                         <td><?= e($p['nama']) ?></td>
+                        <td><?= e($p['komponen'] ?: '-') ?></td>
                         <td><span class="badge badge-warning"><?= e($p['kategori']) ?></span></td>
                         <td><?= (int) $p['bobot_poin'] ?></td>
                         <td><?= e($p['deskripsi'] ?: '-') ?></td>

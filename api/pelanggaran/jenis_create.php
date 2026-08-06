@@ -11,10 +11,17 @@ $input = get_json_input();
 
 $kode = trim($input['kode'] ?? '');
 $nama = trim($input['nama'] ?? '');
+$komponen = trim($input['komponen'] ?? '');
 $kategori = trim($input['kategori'] ?? '');
 $bobot_poin = (int) ($input['bobot_poin'] ?? 0);
 $deskripsi = trim($input['deskripsi'] ?? '');
 $konsekuensi = trim($input['konsekuensi'] ?? '');
+
+$validKomponen = [
+    'Kehadiran', 'Kegiatan Belajar Mengajar', 'Pakaian Seragam', 'Makan dan Minum',
+    'Izin Meninggalkan Sekolah', 'Perkelahian', 'Praktik Kerja Lapangan (PKL)',
+    'Kebersihan Lingkungan', 'Lain-lain',
+];
 
 if ($kode === '') {
     api_error('Kode pelanggaran wajib diisi.');
@@ -24,6 +31,9 @@ if ($nama === '') {
 }
 if (!in_array($kategori, ['Kedisiplinan', 'Tata Krama', 'Kekerasan', 'Narkoba', 'Lainnya'], true)) {
     api_error('Kategori tidak valid.');
+}
+if (!in_array($komponen, $validKomponen, true)) {
+    api_error('Komponen tidak valid.');
 }
 if ($bobot_poin <= 0 || $bobot_poin > 100) {
     api_error('Bobot poin harus antara 1-100.');
@@ -35,10 +45,11 @@ if ($existing) {
 }
 
 $stmt = db_query(
-    'INSERT INTO jenis_pelanggaran (kode, nama, kategori, bobot_poin, deskripsi, konsekuensi) VALUES (?, ?, ?, ?, ?, ?)',
+    'INSERT INTO jenis_pelanggaran (kode, nama, komponen, kategori, bobot_poin, deskripsi, konsekuensi) VALUES (?, ?, ?, ?, ?, ?, ?)',
     [
         $kode,
         $nama,
+        $komponen,
         $kategori,
         $bobot_poin,
         $deskripsi !== '' ? $deskripsi : null,

@@ -21,27 +21,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const chartCanvas = document.getElementById('violationsChart');
     if (chartCanvas) {
-        const ctx = chartCanvas.getContext('2d');
-        let chartData = { labels: [], data: [] };
-        try {
-            chartData = JSON.parse(chartCanvas.dataset.chart || '{"labels":[],"data":[]}');
-        } catch (e) {
-            chartData = { labels: [], data: [] };
-        }
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: 'Jumlah Pelanggaran',
-                    data: chartData.data,
-                    backgroundColor: ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#2563EB', '#10B981']
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        if (typeof Chart === 'undefined') {
+            chartCanvas.insertAdjacentHTML('afterend', '<p style="color:var(--text-muted);">Grafik tidak dapat dimuat (pustaka Chart.js belum tersedia).</p>');
+        } else {
+            const ctx = chartCanvas.getContext('2d');
+            let chartData = { labels: [], data: [] };
+            try {
+                chartData = JSON.parse(chartCanvas.dataset.chart || '{"labels":[],"data":[]}');
+            } catch (e) {
+                chartData = { labels: [], data: [] };
             }
-        });
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Jumlah Pelanggaran',
+                        data: chartData.data,
+                        backgroundColor: ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#2563EB', '#10B981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+        }
     }
 });

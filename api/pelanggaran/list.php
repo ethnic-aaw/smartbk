@@ -7,6 +7,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 require_auth();
 
+$scopeKelasId = current_kelas_scope();
+
 $siswa_id = (int) ($_GET['siswa_id'] ?? 0);
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = (int) ($_GET['per_page'] ?? 20);
@@ -15,6 +17,11 @@ $perPage = min(100, max(1, $perPage));
 $where = ['1 = 1'];
 $params = [];
 
+if ($scopeKelasId) {
+    $where[] = 's.kelas_id = ?';
+    $params[] = $scopeKelasId;
+}
+
 if ($siswa_id > 0) {
     $where[] = 'p.siswa_id = ?';
     $params[] = $siswa_id;
@@ -22,7 +29,7 @@ if ($siswa_id > 0) {
 
 $whereSql = implode(' AND ', $where);
 
-$total = db_fetch("SELECT COUNT(*) AS c FROM pelanggaran_siswa p WHERE $whereSql", $params, 'row');
+$total = db_fetch("SELECT COUNT(*) AS c FROM pelanggaran_siswa p JOIN siswa s ON s.id = p.siswa_id WHERE $whereSql", $params, 'row');
 $total = (int) ($total['c'] ?? 0);
 $totalPages = max(1, (int) ceil($total / $perPage));
 $page = min($page, $totalPages);

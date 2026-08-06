@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     api_error('Method not allowed', 405);
 }
 
-require_auth();
+require_role(['Admin']);
 
 $tahunFilter = trim($_GET['tahun'] ?? $_SESSION['tahun_ajaran']);
 

@@ -26,10 +26,18 @@ if ($userKelasId) {
         , ['Aktif', $tahunAjaran, $userKelasId], 'row')['c'] ?? 0);
 }
 $totalKelas = (int) (db_fetch('SELECT COUNT(*) AS c FROM kelas WHERE tahun_ajaran = ?', [$tahunAjaran], 'row')['c'] ?? 0);
-$pelanggaranBulan = (int) (db_fetch(
-    'SELECT COUNT(*) AS c FROM pelanggaran_siswa
-     WHERE MONTH(tanggal) = MONTH(CURDATE()) AND YEAR(tanggal) = YEAR(CURDATE())',
-    [],
+$pelanggaranParams = [$tahunAjaran];
+$pelanggaranKelasSql = '';
+if ($userKelasId) {
+    $pelanggaranKelasSql = ' AND s.kelas_id = ?';
+    $pelanggaranParams[] = $userKelasId;
+}
+$pelanggaranTahun = (int) (db_fetch(
+    "SELECT COUNT(*) AS c FROM pelanggaran_siswa p
+     JOIN siswa s ON s.id = p.siswa_id
+     JOIN kelas k ON k.id = s.kelas_id
+     WHERE k.tahun_ajaran = ?$pelanggaranKelasSql",
+    $pelanggaranParams,
     'row'
 )['c'] ?? 0);
 
@@ -65,6 +73,28 @@ if ($userKelasId) {
     )['c'] ?? 0);
 }
 
+$periode = trim($_GET['periode'] ?? 'tahun');
+if (!in_array($periode, ['harian', 'minggu', 'bulan', 'tahun'], true)) {
+    $periode = 'tahun';
+}
+$periodeSql = '';
+$periodeParams = [];
+switch ($periode) {
+    case 'harian':
+        $periodeSql = ' AND p.tanggal = CURDATE()';
+        break;
+    case 'minggu':
+        $periodeSql = ' AND p.tanggal >= CURDATE() - INTERVAL 6 DAY';
+        break;
+    case 'bulan':
+        $periodeSql = ' AND MONTH(p.tanggal) = MONTH(CURDATE()) AND YEAR(p.tanggal) = YEAR(CURDATE())';
+        break;
+    case 'tahun':
+    default:
+        $periodeSql = '';
+        break;
+}
+
 $topSiswa = db_fetch(
     'SELECT s.id, s.nama, s.foto, s.nipd, k.nama_kelas,
             SUM(j.bobot_poin) AS total_poin,
@@ -73,11 +103,11 @@ $topSiswa = db_fetch(
      JOIN siswa s ON s.id = p.siswa_id
      JOIN kelas k ON k.id = s.kelas_id
      JOIN jenis_pelanggaran j ON j.id = p.jenis_pelanggaran_id
-     WHERE k.tahun_ajaran = ?
+     WHERE k.tahun_ajaran = ?' . $periodeSql . '
      GROUP BY s.id
      ORDER BY total_poin DESC, s.nama ASC
      LIMIT 10',
-    [$tahunAjaran]
+    array_merge([$tahunAjaran], $periodeParams)
 );
 $topSiswa = $topSiswa ?: [];
 
@@ -90,14 +120,33 @@ if ($userKelasId) {
          JOIN siswa s ON s.id = p.siswa_id
          JOIN kelas k ON k.id = s.kelas_id
          JOIN jenis_pelanggaran j ON j.id = p.jenis_pelanggaran_id
-         WHERE k.tahun_ajaran = ? AND s.kelas_id = ?
+         WHERE k.tahun_ajaran = ? AND s.kelas_id = ?' . $periodeSql . '
          GROUP BY s.id
          ORDER BY total_poin DESC, s.nama ASC
          LIMIT 10',
-        [$tahunAjaran, $userKelasId]
+        array_merge([$tahunAjaran, $userKelasId], $periodeParams)
     );
     $topSiswa = $topSiswa ?: [];
 }
+
+$ringkasanParams = [$tahunAjaran];
+$ringkasanKelasSql = '';
+if ($userKelasId) {
+    $ringkasanKelasSql = ' AND s.kelas_id = ?';
+    $ringkasanParams[] = $userKelasId;
+}
+$ringkasanKomponen = db_fetch(
+    "SELECT COALESCE(j.komponen, 'Lain-lain') AS komponen, COUNT(*) AS jumlah,
+            COALESCE(SUM(j.bobot_poin), 0) AS total_poin
+     FROM pelanggaran_siswa p
+     JOIN siswa s ON s.id = p.siswa_id
+     JOIN kelas k ON k.id = s.kelas_id
+     JOIN jenis_pelanggaran j ON j.id = p.jenis_pelanggaran_id
+     WHERE k.tahun_ajaran = ?$ringkasanKelasSql
+     GROUP BY COALESCE(j.komponen, 'Lain-lain')
+     ORDER BY jumlah DESC, komponen ASC",
+    $ringkasanParams
+) ?: [];
 
 $chart = ['labels' => [], 'data' => []];
 $mon = [
@@ -105,38 +154,45 @@ $mon = [
     '7' => 'Jul', '8' => 'Ags', '9' => 'Sep', '10' => 'Okt', '11' => 'Nov', '12' => 'Des',
 ];
 
+// Periode grafik: 6 bulan terakhir dari tahun ajaran terpilih (berakhir Juni)
+$tahunAkhirAjaran = (int) substr($tahunAjaran, 5, 4);
+$akhirPeriode = new DateTime($tahunAkhirAjaran . '-06-30');
+$mulaiPeriode = clone $akhirPeriode;
+$mulaiPeriode->modify('-5 months');
+$mulaiPeriode->modify('first day of this month');
+$mulaiPeriode->setTime(0, 0);
+
 if ($userKelasId) {
     $chartRows = db_fetch(
         'SELECT MONTH(p.tanggal) AS m, YEAR(p.tanggal) AS y, COUNT(*) AS c
          FROM pelanggaran_siswa p
          JOIN siswa s ON s.id = p.siswa_id
-         WHERE s.kelas_id = ? AND p.tanggal >= DATE_SUB(DATE_FORMAT(CURDATE(), "%Y-%m-01"), INTERVAL 5 MONTH)
+         WHERE s.kelas_id = ? AND p.tanggal BETWEEN ? AND ?
          GROUP BY DATE_FORMAT(p.tanggal, "%Y-%m")
          ORDER BY p.tanggal ASC',
-        [$userKelasId]
+        [$userKelasId, $mulaiPeriode->format('Y-m-d'), $akhirPeriode->format('Y-m-d')]
     );
 } else {
     $chartRows = db_fetch(
         'SELECT MONTH(tanggal) AS m, YEAR(tanggal) AS y, COUNT(*) AS c
          FROM pelanggaran_siswa
-         WHERE tanggal >= DATE_SUB(DATE_FORMAT(CURDATE(), "%Y-%m-01"), INTERVAL 5 MONTH)
+         WHERE tanggal BETWEEN ? AND ?
          GROUP BY DATE_FORMAT(tanggal, "%Y-%m")
-         ORDER BY tanggal ASC'
+         ORDER BY tanggal ASC',
+        [$mulaiPeriode->format('Y-m-d'), $akhirPeriode->format('Y-m-d')]
     );
 }
 $map = [];
 foreach (($chartRows ?: []) as $r) {
     $map[$r['y'] . '-' . $r['m']] = (int) $r['c'];
 }
-$start = new DateTime(date('Y-m-01'));
-for ($i = 5; $i >= 0; $i--) {
-    $k = $start->format('Y') . '-' . (int) $start->format('m');
-    $chart['labels'][] = $mon[(string) (int) $start->format('m')];
+$cursor = $mulaiPeriode;
+for ($i = 0; $i < 6; $i++) {
+    $k = $cursor->format('Y') . '-' . (int) $cursor->format('m');
+    $chart['labels'][] = $mon[(string) (int) $cursor->format('m')];
     $chart['data'][] = $map[$k] ?? 0;
-    $start->modify('-1 month');
+    $cursor->modify('+1 month');
 }
-$chart['labels'] = array_reverse($chart['labels']);
-$chart['data'] = array_reverse($chart['data']);
 
 require_once __DIR__ . '/includes/header.php';
 ?>
@@ -158,8 +214,8 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     <div class="card stat-card">
         <div class="label">Total Pelanggaran</div>
-        <div class="value"><?= $pelanggaranBulan ?></div>
-        <div class="sub">Kejadian bulan <?= $mon[(string) (int) date('n')] ?></div>
+        <div class="value"><?= $pelanggaranTahun ?></div>
+        <div class="sub">Tahun ajaran <?= e($tahunAjaran) ?></div>
     </div>
     <div class="card stat-card">
         <div class="label">Siswa Bermasalah</div>
@@ -175,6 +231,20 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     <div class="card table-card">
         <h3 style="margin-top:0;">Top 10 Siswa Poin Tertinggi</h3>
+        <div class="toolbar" style="margin-bottom:10px; padding:0;">
+            <?php
+            $periodeOptions = [
+                'harian' => 'Hari Ini',
+                'minggu' => '7 Hari',
+                'bulan' => 'Bulan Ini',
+                'tahun' => 'Tahun Ajaran',
+            ];
+            foreach ($periodeOptions as $pk => $pl):
+                $url = rtrim(APP_BASE, '/') . '/dashboard.php' . ($pk === 'tahun' ? '' : '?periode=' . $pk);
+                ?>
+                <a href="<?= $url ?>" class="ghost-btn <?= $periode === $pk ? 'is-active' : '' ?>" style="font-size:13px;"><?= $pl ?></a>
+            <?php endforeach; ?>
+        </div>
         <div class="table-wrap">
             <table>
                 <thead>
@@ -187,19 +257,45 @@ require_once __DIR__ . '/includes/header.php';
                 </thead>
                 <tbody>
                     <?php if (!$topSiswa): ?>
-                        <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Belum ada data pelanggaran.</td></tr>
+                        <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Tidak ada pelanggaran pada periode ini.</td></tr>
                     <?php endif; ?>
                     <?php foreach ($topSiswa as $i => $t): ?>
                         <tr>
                             <td><?= $i + 1 ?></td>
                             <td><a href="<?= rtrim(APP_BASE, '/') ?>/siswa/detail.php?id=<?= (int) $t['id'] ?>" style="color:var(--primary);font-weight:600;"><?= e($t['nama']) ?></a></td>
                             <td><?= e($t['nama_kelas'] ?? '-') ?></td>
-                            <td><?= poin_badge((int) $t['total_poin']) ?></td>
+                            <td><?= poin_badge((int) $t['total_poin']) ?> <?= fase_badge((int) $t['total_poin']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1.3fr 0.7fr; margin-top: 16px;">
+    <div class="card chart-card">
+        <h3 style="margin-top:0;">Pelanggaran per Komponen</h3>
+        <?php if (!$ringkasanKomponen): ?>
+            <p style="color:var(--text-muted);">Belum ada data pelanggaran.</p>
+        <?php else:
+            $maxJumlah = max(array_column($ringkasanKomponen, 'jumlah'));
+        ?>
+            <div class="bar-chart">
+                <?php foreach ($ringkasanKomponen as $rk):
+                    $pct = $maxJumlah > 0 ? (int) round($rk['jumlah'] / $maxJumlah * 100) : 0;
+                ?>
+                    <div class="bar-row">
+                        <div class="bar-label" title="<?= e($rk['komponen']) ?>"><?= e($rk['komponen']) ?></div>
+                        <div class="bar-track"><div class="bar-fill" style="width: <?= $pct ?>%;"></div></div>
+                        <div class="bar-value">
+                            <span class="badge badge-warning"><?= (int) $rk['jumlah'] ?></span>
+                            <span class="bar-poin"><?= (int) $rk['total_poin'] ?> poin</span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

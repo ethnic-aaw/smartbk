@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS jenis_pelanggaran (
   id INT AUTO_INCREMENT PRIMARY KEY,
   kode VARCHAR(20) NOT NULL UNIQUE,
   nama VARCHAR(150) NOT NULL,
+  komponen VARCHAR(100) NULL,
   kategori ENUM('Kedisiplinan','Tata Krama','Kekerasan','Narkoba','Lainnya') NOT NULL,
   bobot_poin INT NOT NULL,
   deskripsi TEXT NULL,
@@ -83,6 +84,36 @@ CREATE TABLE IF NOT EXISTS konsultasi_siswa (
   lampiran_size INT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_siswa_tanggal (siswa_id, tanggal)
+);
+
+CREATE TABLE IF NOT EXISTS fase_pelanggaran (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  kategori VARCHAR(50) NOT NULL,
+  min_skor INT NOT NULL,
+  max_skor INT NULL,
+  tindak_lanjut VARCHAR(255) NULL,
+  administrasi VARCHAR(255) NULL
+);
+
+INSERT INTO fase_pelanggaran (kategori, min_skor, max_skor, tindak_lanjut, administrasi) VALUES
+('Pelanggaran Ringan', 1, 15, 'Peringatan ke 1 (Petugas Ketertiban / Wali Kelas)', NULL),
+('Pelanggaran Ringan', 16, 29, 'Peringatan ke 2 (Petugas Ketertiban / Wali Kelas)', 'Surat Peringatan ke 1'),
+('Pelanggaran Sedang', 30, 45, 'Panggilan Orang Tua Ke 1 / Home Visit (Wali Kelas)', NULL),
+('Pelanggaran Sedang', 46, 50, 'Panggilan Orang Tua Ke 2 / Home Visit (Wali Kelas / Guru BK)', NULL),
+('Pelanggaran Sedang', 51, 74, 'Panggilan Orang Tua Ke 3 / Home Visit (Koordinator BK)', 'Surat Peringatan Ke 2'),
+('Pelanggaran Berat', 75, 85, 'Skorsing 1 (Wakasek Kesiswaan)', NULL),
+('Pelanggaran Berat', 86, 99, 'Skorsing 2 (Wakasek Kesiswaan - Konferensi Kasus)', 'Surat Peringatan Ke 3'),
+('Pelanggaran Berat', 100, NULL, 'Dikembalikan ke orang tua (Kepala Sekolah)', NULL);
+
+CREATE TABLE IF NOT EXISTS log_generate (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tahun_ajaran_lama VARCHAR(20) NOT NULL,
+  tahun_ajaran_baru VARCHAR(20) NOT NULL,
+  snapshot_json LONGTEXT NOT NULL,
+  status ENUM('Aktif','Dibatalkan') NOT NULL DEFAULT 'Aktif',
+  created_by INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_tahun_lama (tahun_ajaran_lama, status)
 );
 
 INSERT INTO users (nama, username, password_hash, role, kelas_id, status) VALUES

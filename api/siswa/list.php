@@ -7,6 +7,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 require_auth();
 
+$scopeKelasId = current_kelas_scope();
+
 $search = trim($_GET['q'] ?? '');
 $kelasFilter = (int) ($_GET['kelas'] ?? 0);
 $tahunFilter = trim($_GET['tahun'] ?? $_SESSION['tahun_ajaran']);
@@ -16,6 +18,11 @@ $perPage = min(100, max(1, $perPage));
 
 $where = ['1 = 1'];
 $params = [];
+
+if ($scopeKelasId) {
+    $where[] = 's.kelas_id = ?';
+    $params[] = $scopeKelasId;
+}
 
 if ($search !== '') {
     $where[] = '(s.nama LIKE ? OR s.nipd LIKE ?)';

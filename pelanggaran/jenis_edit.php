@@ -20,6 +20,11 @@ if (!$jenis) {
 }
 
 $errors = [];
+$validKomponen = [
+    'Kehadiran', 'Kegiatan Belajar Mengajar', 'Pakaian Seragam', 'Makan dan Minum',
+    'Izin Meninggalkan Sekolah', 'Perkelahian', 'Praktik Kerja Lapangan (PKL)',
+    'Kebersihan Lingkungan', 'Lain-lain',
+];
 $old = $jenis;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -27,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'id' => $id,
         'kode' => trim($_POST['kode'] ?? ''),
         'nama' => trim($_POST['nama'] ?? ''),
+        'komponen' => trim($_POST['komponen'] ?? ''),
         'kategori' => trim($_POST['kategori'] ?? 'Kedisiplinan'),
         'bobot_poin' => trim($_POST['bobot_poin'] ?? ''),
         'deskripsi' => trim($_POST['deskripsi'] ?? ''),
@@ -57,11 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!in_array($old['kategori'], $validKategori, true)) {
         $old['kategori'] = 'Kedisiplinan';
     }
+    if (!in_array($old['komponen'], $validKomponen, true)) {
+        $old['komponen'] = 'Kehadiran';
+    }
 
     if (!$errors) {
         $ok = db_query(
-            'UPDATE jenis_pelanggaran SET kode = ?, nama = ?, kategori = ?, bobot_poin = ?, deskripsi = ?, konsekuensi = ? WHERE id = ?',
-            [$old['kode'], $old['nama'], $old['kategori'], $poin, $old['deskripsi'] ?: null, $old['konsekuensi'] ?: null, $id]
+            'UPDATE jenis_pelanggaran SET kode = ?, nama = ?, komponen = ?, kategori = ?, bobot_poin = ?, deskripsi = ?, konsekuensi = ? WHERE id = ?',
+            [$old['kode'], $old['nama'], $old['komponen'], $old['kategori'], $poin, $old['deskripsi'] ?: null, $old['konsekuensi'] ?: null, $id]
         );
 
         if ($ok) {
@@ -95,6 +104,14 @@ require_once __DIR__ . '/../includes/header.php';
                 <label>Nama Pelanggaran</label>
                 <input type="text" name="nama" value="<?= e($old['nama']) ?>" class="<?= isset($errors['nama']) ? 'input-invalid' : '' ?>">
                 <?php if (isset($errors['nama'])): ?><span class="field-error"><?= e($errors['nama']) ?></span><?php endif; ?>
+            </div>
+            <div class="form-group">
+                <label>Komponen</label>
+                <select name="komponen">
+                    <?php foreach ($validKomponen as $komp): ?>
+                        <option value="<?= e($komp) ?>" <?= $old['komponen'] === $komp ? 'selected' : '' ?>><?= e($komp) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <div class="form-group">
                 <label>Kategori</label>

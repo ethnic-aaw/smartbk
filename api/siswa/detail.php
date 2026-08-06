@@ -30,6 +30,11 @@ if (!$siswa) {
     api_error('Siswa tidak ditemukan.', 404);
 }
 
+$scopeKelasId = current_kelas_scope();
+if ($scopeKelasId && (int) $siswa['kelas_id'] !== $scopeKelasId) {
+    api_error('Anda hanya bisa melihat siswa di kelas Anda.', 403);
+}
+
 $riwayat = db_fetch(
     'SELECT p.*, j.nama AS jenis_pelanggaran, j.bobot_poin, j.kategori,
             u.nama AS pelapor

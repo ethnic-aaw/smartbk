@@ -39,6 +39,7 @@ if (!isset($activeMenu)) {
                 ['key' => 'siswa', 'label' => 'Master Siswa', 'url' => rtrim(APP_BASE, '/') . '/siswa/index.php', 'icon' => '◌'],
                 ['key' => 'user', 'label' => 'Master User', 'url' => rtrim(APP_BASE, '/') . '/user/index.php', 'icon' => '◌', 'admin_only' => true],
                 ['key' => 'kelas', 'label' => 'Master Kelas', 'url' => rtrim(APP_BASE, '/') . '/kelas/index.php', 'icon' => '◌', 'admin_only' => true],
+                ['key' => 'generate', 'label' => 'Generate Tahun Ajaran', 'url' => rtrim(APP_BASE, '/') . '/kelas/generate.php', 'icon' => '↗', 'admin_only' => true],
                 ['key' => 'pelanggaran_master', 'label' => 'Master Pelanggaran', 'url' => rtrim(APP_BASE, '/') . '/pelanggaran/master.php', 'icon' => '◌', 'admin_only' => true],
                 ['key' => 'pelanggaran_riwayat', 'label' => 'Riwayat Pelanggaran', 'url' => rtrim(APP_BASE, '/') . '/pelanggaran/riwayat.php', 'icon' => '◌'],
                 ['key' => 'buku_tamu', 'label' => 'Buku Tamu', 'url' => rtrim(APP_BASE, '/') . '/buku_tamu/index.php', 'icon' => '☰', 'bk_only' => true],
