@@ -1,0 +1,44 @@
+services:
+  app:
+    build: .
+    container_name: smartbk_app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: smart_bk
+      DB_USER: ${DB_USER:-smartbk}
+      DB_PASS: ${DB_PASS:?set DB_PASS di file .env}
+      TZ: Asia/Jakarta
+    depends_on:
+      db:
+        condition: service_healthy
+    # Bind-mount agar file upload (foto, lampiran, kop) persist di host
+    # dan file upload lama yang Anda kirim ikut terbaca.
+    volumes:
+      - ./assets/uploads:/var/www/html/assets/uploads
+
+  db:
+    image: mysql:8.0
+    container_name: smartbk_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: smart_bk
+      MYSQL_USER: ${DB_USER:-smartbk}
+      MYSQL_PASSWORD: ${DB_PASS:?set DB_PASS di file .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD di file .env}
+      TZ: Asia/Jakarta
+    volumes:
+      - db_data:/var/lib/mysql
+      # Import smart_bk.sql otomatis saat volume DB pertama kali dibuat
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  db_data:

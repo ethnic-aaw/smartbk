@@ -1,2 +1,5 @@
 assets/uploads/*
 !assets/uploads/.gitkeep
+
+# Docker secrets
+.env
