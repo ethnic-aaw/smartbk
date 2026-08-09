@@ -11,8 +11,10 @@ services:
     environment:
       DB_HOST: db
       DB_NAME: smart_bk
+      # Tanpa file .env dipakai nilai default di bawah ini (lihat .env.example).
+      # Untuk produksi wajib override lewat .env.
       DB_USER: ${DB_USER:-smartbk}
-      DB_PASS: ${DB_PASS:?set DB_PASS di file .env}
+      DB_PASS: ${DB_PASS:-smartbk_ChangeMe_2025}
       TZ: Asia/Jakarta
     depends_on:
       db:
@@ -29,8 +31,8 @@ services:
     environment:
       MYSQL_DATABASE: smart_bk
       MYSQL_USER: ${DB_USER:-smartbk}
-      MYSQL_PASSWORD: ${DB_PASS:?set DB_PASS di file .env}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD di file .env}
+      MYSQL_PASSWORD: ${DB_PASS:-smartbk_ChangeMe_2025}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-smartbk_Root_ChangeMe_2025}
       TZ: Asia/Jakarta
     volumes:
       - db_data:/var/lib/mysql

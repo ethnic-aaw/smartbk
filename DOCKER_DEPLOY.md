@@ -70,6 +70,10 @@ MYSQL_ROOT_PASSWORD=GANTI_DENGAN_ROOT_PASSWORD_KUAT
 ```
 
 > `.env` tidak ikut git (aman). Password di sini dipakai container app & db.
+>
+> Jika `.env` tidak dibuat, compose **tetap berjalan** memakai password default
+> (`smartbk_ChangeMe_2025`). Untuk penggunaan nyata **wajib** membuat `.env`
+> dan mengganti password (jangan biarkan default terpakai di publik).
 
 ---
 
@@ -184,13 +188,18 @@ Perbaikan tanpa kehilangan data (samakan password MySQL dengan `.env`):
 # 1. set/pastikan DB_PASS & MYSQL_ROOT_PASSWORD di .env sudah benar
 nano .env
 
-# 2. samakan password user 'smartbk' dengan DB_PASS di .env
-bash docker/sync_db_password.sh
+# 2. diagnosa + perbaiki otomatis (cek kredensial, ALTER USER, verifikasi ulang)
+bash docker/fix_db_access.sh
 
-# 3. restart agar container app memakai kredensial baru
-docker compose restart app
+# 3. kalau masih ditolak, opsi reset (data DB hilang, sql/ di-import ulang)
+bash docker/fix_db_access.sh --reset
+
+# 4. muat ulang container app agar memakai nilai .env terbaru
+docker compose up -d --force-recreate app
 ```
 
+> Alternatif manual (tanpa kehilangan data): `bash docker/sync_db_password.sh` lalu `docker compose restart app`.
+>
 > Alternatif cepat (data DB HILANG, fresh install): `docker compose down -v` lalu `docker compose up -d --build`.
 
 **Upload foto gagal / permission denied**
@@ -204,7 +213,7 @@ Ubah `9000:9000` menjadi port lain (misal `9001:9000`) di `docker-compose.yml` D
 
 **Container db error password**
 Volume DB lama menyimpan kredensial sebelumnya. Pilihan:
-- Tanpa kehilangan data: `bash docker/sync_db_password.sh` lalu `docker compose restart app`.
+- Tanpa kehilangan data: `bash docker/fix_db_access.sh` (atau `bash docker/sync_db_password.sh`).
 - Reset total (data hilang): hapus volume lalu ulangi:
 ```bash
 docker compose down -v
