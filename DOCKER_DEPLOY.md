@@ -107,7 +107,7 @@ Saat pertama kali `db` dibuat, `sql/smart_bk.sql` **otomatis di-import** oleh My
 Buka browser:
 
 ```
-http://IP_SERVER/
+http://IP_SERVER:9000/
 ```
 
 Login default:
@@ -120,15 +120,15 @@ Login default:
 
 ## 8. Firewall
 
-Buka port 80 agar bisa diakses dari luar:
+Buka port 9000 agar bisa diakses dari luar:
 
 ```bash
 # jika memakai ufw
-sudo ufw allow 80/tcp
+sudo ufw allow 9000/tcp
 sudo ufw enable
 
 # jika memakai nftables, tambahkan rule:
-# tcp dport 80 accept
+# tcp dport 9000 accept
 ```
 
 ---
@@ -186,8 +186,8 @@ docker compose logs db | tail -50
 sudo chmod -R 777 assets/uploads
 ```
 
-**Port 80 sudah terpakai service lain**
-Ubah `80:80` menjadi `8080:80` di `docker-compose.yml`, lalu akses `http://IP_SERVER:8080/`.
+**Port 9000 sudah terpakai service lain**
+Ubah `9000:9000` menjadi port lain (misal `9001:9000`) di `docker-compose.yml` DAN di `Dockerfile` (kolom `EXPOSE`, `docker/ports.conf`, `docker/000-default.conf`), lalu akses `http://IP_SERVER:PORT_BARU/`.
 
 **Container db error password**
 Volume DB lama menyimpan kredensial sebelumnya. Hapus volume lalu ulangi:

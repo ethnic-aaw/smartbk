@@ -21,6 +21,9 @@ RUN apt-get update \
 # Vhost Apache: AllowOverride All agar .htaccess berfungsi
 COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
+# Ganti port listen bawaan (80) menjadi PORT_APP agar tidak bentrok di host
+COPY docker/ports.conf /etc/apache2/ports.conf
+
 # Konfigurasi PHP production (memory, upload, opcache, timezone)
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-smartbk.ini
 
@@ -33,4 +36,4 @@ RUN mkdir -p /var/www/html/assets/uploads/foto_siswa \
              /var/www/html/assets/uploads/kop \
     && chown -R www-data:www-data /var/www/html/assets/uploads
 
-EXPOSE 80
+EXPOSE 9000
