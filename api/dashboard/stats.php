@@ -92,8 +92,8 @@ $chartRows = db_fetch(
      FROM pelanggaran_siswa p
      JOIN siswa s ON s.id = p.siswa_id
      WHERE p.tanggal BETWEEN ? AND ?' . ($scopeKelasId ? ' AND s.kelas_id = ?' : '') . '
-     GROUP BY DATE_FORMAT(p.tanggal, "%Y-%m")
-     ORDER BY p.tanggal ASC',
+     GROUP BY YEAR(p.tanggal), MONTH(p.tanggal)
+     ORDER BY y, m',
     $scopeKelasId ? [$mulaiPeriode->format('Y-m-d'), $akhirPeriode->format('Y-m-d'), $scopeKelasId] : [$mulaiPeriode->format('Y-m-d'), $akhirPeriode->format('Y-m-d')]
 );
 

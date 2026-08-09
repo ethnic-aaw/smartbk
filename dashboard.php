@@ -168,8 +168,8 @@ if ($userKelasId) {
          FROM pelanggaran_siswa p
          JOIN siswa s ON s.id = p.siswa_id
          WHERE s.kelas_id = ? AND p.tanggal BETWEEN ? AND ?
-         GROUP BY DATE_FORMAT(p.tanggal, "%Y-%m")
-         ORDER BY p.tanggal ASC',
+         GROUP BY YEAR(p.tanggal), MONTH(p.tanggal)
+         ORDER BY y, m',
         [$userKelasId, $mulaiPeriode->format('Y-m-d'), $akhirPeriode->format('Y-m-d')]
     );
 } else {
@@ -177,8 +177,8 @@ if ($userKelasId) {
         'SELECT MONTH(tanggal) AS m, YEAR(tanggal) AS y, COUNT(*) AS c
          FROM pelanggaran_siswa
          WHERE tanggal BETWEEN ? AND ?
-         GROUP BY DATE_FORMAT(tanggal, "%Y-%m")
-         ORDER BY tanggal ASC',
+         GROUP BY YEAR(tanggal), MONTH(tanggal)
+         ORDER BY y, m',
         [$mulaiPeriode->format('Y-m-d'), $akhirPeriode->format('Y-m-d')]
     );
 }
