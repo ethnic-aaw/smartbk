@@ -34,16 +34,19 @@ if (!isset($activeMenu)) {
 
         <nav class="nav-links">
             <?php
+            function svg_icon(string $inner): string {
+                return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $inner . '</svg>';
+            }
             $menuItems = [
-                ['key' => 'dashboard', 'label' => 'Dashboard', 'url' => rtrim(APP_BASE, '/') . '/dashboard.php', 'icon' => '◉'],
-                ['key' => 'siswa', 'label' => 'Master Siswa', 'url' => rtrim(APP_BASE, '/') . '/siswa/index.php', 'icon' => '◌'],
-                ['key' => 'user', 'label' => 'Master User', 'url' => rtrim(APP_BASE, '/') . '/user/index.php', 'icon' => '◌', 'admin_only' => true],
-                ['key' => 'kelas', 'label' => 'Master Kelas', 'url' => rtrim(APP_BASE, '/') . '/kelas/index.php', 'icon' => '◌', 'admin_only' => true],
-                ['key' => 'generate', 'label' => 'Generate Tahun Ajaran', 'url' => rtrim(APP_BASE, '/') . '/kelas/generate.php', 'icon' => '↗', 'admin_only' => true],
-                ['key' => 'pelanggaran_master', 'label' => 'Master Pelanggaran', 'url' => rtrim(APP_BASE, '/') . '/pelanggaran/master.php', 'icon' => '◌', 'admin_only' => true],
-                ['key' => 'pelanggaran_riwayat', 'label' => 'Riwayat Pelanggaran', 'url' => rtrim(APP_BASE, '/') . '/pelanggaran/riwayat.php', 'icon' => '◌'],
-                ['key' => 'buku_tamu', 'label' => 'Buku Tamu', 'url' => rtrim(APP_BASE, '/') . '/buku_tamu/index.php', 'icon' => '☰', 'bk_only' => true],
-                ['key' => 'konsultasi', 'label' => 'Konsultasi Siswa', 'url' => rtrim(APP_BASE, '/') . '/konsultasi/index.php', 'icon' => '✉', 'bk_only' => true],
+                ['key' => 'dashboard', 'label' => 'Dashboard', 'url' => rtrim(APP_BASE, '/') . '/dashboard.php', 'icon' => svg_icon('<rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>')],
+                ['key' => 'siswa', 'label' => 'Master Siswa', 'url' => rtrim(APP_BASE, '/') . '/siswa/index.php', 'icon' => svg_icon('<path d="M22 9L12 4 2 9l10 5 10-5z"></path><path d="M6 11v4c0 1.5 2.7 3 6 3s6-1.5 6-3v-4"></path>')],
+                ['key' => 'user', 'label' => 'Master User', 'url' => rtrim(APP_BASE, '/') . '/user/index.php', 'icon' => svg_icon('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>'), 'admin_only' => true],
+                ['key' => 'kelas', 'label' => 'Master Kelas', 'url' => rtrim(APP_BASE, '/') . '/kelas/index.php', 'icon' => svg_icon('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>'), 'admin_only' => true],
+                ['key' => 'generate', 'label' => 'Generate Tahun Ajaran', 'url' => rtrim(APP_BASE, '/') . '/kelas/generate.php', 'icon' => svg_icon('<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>'), 'admin_only' => true],
+                ['key' => 'pelanggaran_master', 'label' => 'Master Pelanggaran', 'url' => rtrim(APP_BASE, '/') . '/pelanggaran/master.php', 'icon' => svg_icon('<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>'), 'admin_only' => true],
+                ['key' => 'pelanggaran_riwayat', 'label' => 'Riwayat Pelanggaran', 'url' => rtrim(APP_BASE, '/') . '/pelanggaran/riwayat.php', 'icon' => svg_icon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>')],
+                ['key' => 'buku_tamu', 'label' => 'Buku Tamu', 'url' => rtrim(APP_BASE, '/') . '/buku_tamu/index.php', 'icon' => svg_icon('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>'), 'bk_only' => true],
+                ['key' => 'konsultasi', 'label' => 'Konsultasi Siswa', 'url' => rtrim(APP_BASE, '/') . '/konsultasi/index.php', 'icon' => svg_icon('<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>'), 'bk_only' => true],
             ];
             $userRole = $_SESSION['user']['role'] ?? '';
             foreach ($menuItems as $item):
@@ -63,7 +66,7 @@ if (!isset($activeMenu)) {
 
         <div class="sidebar-footer">
             <a href="<?= rtrim(APP_BASE, '/') ?>/logout.php" class="nav-item logout-item">
-                <span class="nav-icon">↺</span>
+                <span class="nav-icon"><?= svg_icon('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>') ?></span>
                 <span>Logout</span>
             </a>
         </div>
