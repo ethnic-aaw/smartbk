@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/upload.php';
 
 $id = (int) ($_GET['id'] ?? 0);
 
@@ -11,13 +12,14 @@ if (is_wali_kelas()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
-    $rec = db_fetch('SELECT id, siswa_id FROM pelanggaran_siswa WHERE id = ? LIMIT 1', [$id], 'row');
+    $rec = db_fetch('SELECT id, siswa_id, bukti_file FROM pelanggaran_siswa WHERE id = ? LIMIT 1', [$id], 'row');
 
     if (!$rec) {
         set_flash('error', 'Catatan pelanggaran tidak ditemukan.');
     } else {
         $ok = db_query('DELETE FROM pelanggaran_siswa WHERE id = ?', [$id]);
         if ($ok) {
+            hapus_bukti_pelanggaran($rec['bukti_file']);
             set_flash('success', 'Catatan pelanggaran telah dihapus.');
         } else {
             set_flash('error', 'Gagal menghapus catatan pelanggaran.');

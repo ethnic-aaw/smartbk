@@ -30,7 +30,7 @@ if (is_wali_kelas()) {
 }
 
 $riwayat = db_fetch(
-    'SELECT p.id, p.tanggal, p.lokasi, p.keterangan, p.tindakan, j.nama AS jenis_nama, j.bobot_poin,
+    'SELECT p.id, p.tanggal, p.lokasi, p.keterangan, p.tindakan, p.bukti_file, p.bukti_original, j.nama AS jenis_nama, j.bobot_poin,
             u.nama AS pelapor
      FROM pelanggaran_siswa p
      JOIN jenis_pelanggaran j ON j.id = p.jenis_pelanggaran_id
@@ -139,6 +139,12 @@ require_once __DIR__ . '/../includes/header.php';
                         <td><?= e($r['keterangan'] ?: '-') ?></td>
                         <td>
                             <div class="row-actions">
+                                <?php if (can_see_all_data()): ?>
+                                    <?php if (!empty($r['bukti_file'])): ?>
+                                        <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/download.php?id=<?= (int) $r['id'] ?>" class="link-btn" title="Unduh bukti: <?= e($r['bukti_original']) ?>">📎</a>
+                                    <?php endif; ?>
+                                    <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/bukti.php?id=<?= (int) $r['id'] ?>" class="link-btn">Bukti</a>
+                                <?php endif; ?>
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/edit.php?id=<?= (int) $r['id'] ?>" class="link-btn link-edit">Edit</a>
                                 <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/hapus.php?id=<?= (int) $r['id'] ?>" data-confirm="Hapus catatan pelanggaran ini?">
                                     <button type="submit" class="link-btn link-delete">Hapus</button>

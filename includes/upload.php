@@ -167,3 +167,74 @@ function hapus_lampiran_konsultasi(?string $fileName): void
         @unlink($path);
     }
 }
+
+/**
+ * Upload barang bukti pelanggaran (dokumen / foto).
+ * Mendukung foto (JPG/PNG/WebP) dan dokumen (PDF), maksimal 2MB, 1 file.
+ * Mengembalikan: ['ok'=>true,'file','original','type','size'] atau ['ok'=>false,'error'=>...]
+ */
+function upload_bukti_pelanggaran(array $file)
+{
+    if (empty($file['name']) && (int) $file['error'] === UPLOAD_ERR_NO_FILE) {
+        return ['ok' => true, 'file' => null];
+    }
+
+    if ((int) $file['error'] !== UPLOAD_ERR_OK) {
+        return ['ok' => false, 'error' => 'Gagal mengunggah bukti. Kode error: ' . (int) $file['error']];
+    }
+
+    $maxSize = 2 * 1024 * 1024;
+    if ((int) $file['size'] > $maxSize) {
+        return ['ok' => false, 'error' => 'Ukuran bukti maksimal 2MB.'];
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($file['tmp_name']);
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+        'application/pdf' => 'pdf',
+    ];
+    if (!isset($allowed[$mime])) {
+        return ['ok' => false, 'error' => 'Format bukti harus JPG, PNG, atau PDF.'];
+    }
+    $ext = $allowed[$mime];
+
+    $dir = __DIR__ . '/../assets/uploads/bukti_pelanggaran';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    if (!is_writable($dir)) {
+        return ['ok' => false, 'error' => 'Folder upload tidak dapat ditulis.'];
+    }
+
+    $name = 'bukti_' . date('Ymd_His') . '_' . substr(md5(uniqid('', true)), 0, 8) . '.' . $ext;
+    $target = $dir . '/' . $name;
+
+    if (!@move_uploaded_file($file['tmp_name'], $target)) {
+        return ['ok' => false, 'error' => 'Gagal menyimpan bukti.'];
+    }
+
+    return [
+        'ok' => true,
+        'file' => $name,
+        'original' => $file['name'],
+        'type' => $mime,
+        'size' => (int) $file['size'],
+    ];
+}
+
+/**
+ * Hapus file bukti pelanggaran dari folder.
+ */
+function hapus_bukti_pelanggaran(?string $fileName): void
+{
+    if (empty($fileName)) {
+        return;
+    }
+    $path = __DIR__ . '/../assets/uploads/bukti_pelanggaran/' . $fileName;
+    if (file_exists($path)) {
+        @unlink($path);
+    }
+}

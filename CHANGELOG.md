@@ -1,5 +1,33 @@
 # Smart BK - Change Log
 
+## Version 1.4.1 (2026-08-09)
+
+### ✅ Fitur Baru: Barang Bukti Pelanggaran
+- ✅ Upload barang bukti pelanggaran yang bisa diunggah dalam catatan (foto JPG/PNG/WebP atau dokumen PDF, maksimal 2MB, 1 file)
+- ✅ Field upload bukti di form **Catat Pelanggaran** & **Edit Pelanggaran** (file lama otomatis diganti)
+- ✅ Halaman `pelanggaran/bukti.php` untuk kelola bukti: pratinjau foto inline, download, upload/ganti, hapus
+- ✅ Kolom **Aksi** di **Riwayat Pelanggaran** menambah tombol "Bukti" + unduhan file bila sudah ada
+- ✅ Link bukti juga muncul di **Detail Siswa** (riwayat pelanggaran)
+- ✅ Download dilindungi peran: Admin & Guru BK penuh, Wali Kelas hanya untuk siswa di kelasnya
+- ✅ Hapus catatan pelanggaran otomatis menghapus file bukti
+- ✅ Kolom DB baru: `bukti_file`, `bukti_original`, `bukti_type`, `bukti_size`
+- ✅ Migration idempotent `sql/migration_bukti_pelanggaran.sql`
+
+### Files Baru
+- `pelanggaran/bukti.php`
+- `pelanggaran/download.php`
+- `sql/migration_bukti_pelanggaran.sql`
+- `assets/uploads/bukti_pelanggaran/` (folder upload)
+
+### Files Dimodifikasi
+- `sql/smart_bk.sql` - Kolom bukti pada `pelanggaran_siswa`
+- `includes/upload.php` - `upload_bukti_pelanggaran()` + `hapus_bukti_pelanggaran()`
+- `pelanggaran/tambah.php`, `pelanggaran/edit.php`, `pelanggaran/riwayat.php`, `pelanggaran/hapus.php`
+- `siswa/detail.php`
+- `Dockerfile` - buat folder `bukti_pelanggaran`
+
+---
+
 ## Version 1.4.0 (2026-08-05)
 
 ### ✅ Fitur Baru: Cetak PDF Rekap Konsultasi Siswa

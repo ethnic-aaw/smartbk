@@ -33,6 +33,7 @@ COPY . /var/www/html
 # Siapkan folder upload & beri izin tulis untuk www-data
 RUN mkdir -p /var/www/html/assets/uploads/foto_siswa \
              /var/www/html/assets/uploads/lampiran_konsultasi \
+             /var/www/html/assets/uploads/bukti_pelanggaran \
              /var/www/html/assets/uploads/kop \
     && chown -R www-data:www-data /var/www/html/assets/uploads
 

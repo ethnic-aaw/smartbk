@@ -60,7 +60,7 @@ $offset = ($page - 1) * $perPage;
 
 $listParams = array_merge($params, [$perPage, $offset]);
 $list = db_fetch(
-    "SELECT p.id, p.tanggal, p.lokasi, p.keterangan, p.tindakan,
+    "SELECT p.id, p.tanggal, p.lokasi, p.keterangan, p.tindakan, p.bukti_file, p.bukti_original, p.bukti_type,
             s.id AS siswa_id, s.nama AS siswa_nama, s.nipd, k.nama_kelas,
             j.nama AS jenis_nama, j.bobot_poin,
             u.nama AS pelapor,
@@ -143,6 +143,12 @@ require_once __DIR__ . '/../includes/header.php';
                         <td>
                             <?php if (can_see_all_data()): ?>
                             <div class="row-actions">
+                                <?php if (!empty($r['bukti_file'])): ?>
+                                    <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/download.php?id=<?= (int) $r['id'] ?>" title="Unduh bukti: <?= e($r['bukti_original']) ?>">📎 <?= strtoupper(pathinfo($r['bukti_original'], PATHINFO_EXTENSION)) ?></a>
+                                    <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/bukti.php?id=<?= (int) $r['id'] ?>" class="link-btn">Bukti</a>
+                                <?php else: ?>
+                                    <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/bukti.php?id=<?= (int) $r['id'] ?>" class="link-btn">+ Bukti</a>
+                                <?php endif; ?>
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/edit.php?id=<?= (int) $r['id'] ?>" class="link-btn link-edit">Edit</a>
                                 <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/hapus.php?id=<?= (int) $r['id'] ?>" data-confirm="Hapus catatan pelanggaran ini?">
                                     <button type="submit" class="link-btn link-delete">Hapus</button>

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/upload.php';
 
 $pageTitle = 'Edit Pelanggaran';
 $activeMenu = 'pelanggaran_riwayat';
@@ -57,21 +58,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['tanggal'] = 'Tanggal kejadian wajib diisi.';
     }
 
-    if (!$errors) {
-        $ok = db_query(
-            'UPDATE pelanggaran_siswa SET siswa_id = ?, jenis_pelanggaran_id = ?, tanggal = ?, lokasi = ?, keterangan = ?, tindakan = ? WHERE id = ?',
-            [
-                $old['siswa_id'], $old['jenis_pelanggaran_id'], $old['tanggal'],
-                $old['lokasi'] ?: null, $old['keterangan'] ?: null, $old['tindakan'] ?: null,
-                $id,
-            ]
-        );
+    // Upload barang bukti baru (opsional; jika diisi, mengganti bukti lama)
+    $bukti = null;
+    $buktiErr = null;
+    if (isset($_FILES['bukti']) && !empty($_FILES['bukti']['name'])) {
+        $up = upload_bukti_pelanggaran($_FILES['bukti']);
+        if (!$up['ok']) {
+            $buktiErr = $up['error'];
+        } else {
+            $bukti = $up;
+        }
+    }
+
+    if (!$errors && !$buktiErr) {
+        $ok = null;
+        if ($bukti) {
+            $ok = db_query(
+                'UPDATE pelanggaran_siswa SET siswa_id = ?, jenis_pelanggaran_id = ?, tanggal = ?, lokasi = ?, keterangan = ?, tindakan = ?, bukti_file = ?, bukti_original = ?, bukti_type = ?, bukti_size = ? WHERE id = ?',
+                [
+                    $old['siswa_id'], $old['jenis_pelanggaran_id'], $old['tanggal'],
+                    $old['lokasi'] ?: null, $old['keterangan'] ?: null, $old['tindakan'] ?: null,
+                    $bukti['file'], $bukti['original'], $bukti['type'], $bukti['size'],
+                    $id,
+                ]
+            );
+        } else {
+            $ok = db_query(
+                'UPDATE pelanggaran_siswa SET siswa_id = ?, jenis_pelanggaran_id = ?, tanggal = ?, lokasi = ?, keterangan = ?, tindakan = ? WHERE id = ?',
+                [
+                    $old['siswa_id'], $old['jenis_pelanggaran_id'], $old['tanggal'],
+                    $old['lokasi'] ?: null, $old['keterangan'] ?: null, $old['tindakan'] ?: null,
+                    $id,
+                ]
+            );
+        }
 
         if ($ok) {
+            if ($bukti && $rec['bukti_file'] && $rec['bukti_file'] !== $bukti['file']) {
+                hapus_bukti_pelanggaran($rec['bukti_file']);
+            }
             set_flash('success', 'Catatan pelanggaran berhasil diperbarui.');
             redirect_to(rtrim(APP_BASE, '/') . '/pelanggaran/riwayat.php');
         }
         $errors['siswa_id'] = 'Gagal memperbarui data di database.';
+        if ($bukti) {
+            hapus_bukti_pelanggaran($bukti['file']);
+        }
+    }
+
+    if ($buktiErr) {
+        $errors['bukti'] = $buktiErr;
+    }
+
+    if ($bukti && $errors) {
+        hapus_bukti_pelanggaran($bukti['file']);
     }
 }
 
@@ -82,7 +122,7 @@ require_once __DIR__ . '/../includes/header.php';
     <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/riwayat.php" class="secondary-btn">Kembali</a>
 </div>
 <div class="card form-card">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <div class="form-grid">
             <div class="form-group">
                 <label>Siswa</label>
@@ -132,6 +172,18 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-group" style="grid-column: 1 / -1;">
                 <label>Tindakan Diambil</label>
                 <textarea name="tindakan" rows="4"><?= e($old['tindakan']) ?></textarea>
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Barang Bukti (foto / dokumen)</label>
+                <?php if (!empty($old['bukti_file'])): ?>
+                    <div style="margin-bottom:8px;font-size:13px;">
+                        Bukti saat ini:
+                        <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/download.php?id=<?= (int) $id ?>" style="color:var(--primary);font-weight:600;">📎 <?= e($old['bukti_original']) ?></a>
+                    </div>
+                <?php endif; ?>
+                <input type="file" name="bukti" accept=".jpg,.jpeg,.png,.webp,.pdf" class="<?= isset($errors['bukti']) ? 'input-invalid' : '' ?>">
+                <small style="color: var(--text-muted);">Kosongkan jika tidak mengganti. JPG, PNG, atau PDF - maksimal 2MB - 1 file</small>
+                <?php if (isset($errors['bukti'])): ?><span class="field-error"><?= e($errors['bukti']) ?></span><?php endif; ?>
             </div>
         </div>
         <div class="form-actions">

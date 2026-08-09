@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/upload.php';
 
 $pageTitle = 'Catat Pelanggaran';
 $activeMenu = 'pelanggaran_riwayat';
@@ -68,14 +69,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['tanggal'] = 'Tanggal kejadian wajib diisi.';
     }
 
-    if (!$errors) {
+    // Upload barang bukti (opsional, 1 file)
+    $bukti = null;
+    $buktiErr = null;
+    if (isset($_FILES['bukti']) && !empty($_FILES['bukti']['name'])) {
+        $up = upload_bukti_pelanggaran($_FILES['bukti']);
+        if (!$up['ok']) {
+            $buktiErr = $up['error'];
+        } else {
+            $bukti = $up;
+        }
+    }
+
+    if (!$errors && !$buktiErr) {
         $ok = db_query(
-            'INSERT INTO pelanggaran_siswa (siswa_id, jenis_pelanggaran_id, tanggal, lokasi, keterangan, tindakan, pelapor_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO pelanggaran_siswa (siswa_id, jenis_pelanggaran_id, tanggal, lokasi, keterangan, tindakan, pelapor_id, bukti_file, bukti_original, bukti_type, bukti_size)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 $old['siswa_id'], $old['jenis_pelanggaran_id'], $old['tanggal'],
                 $old['lokasi'] ?: null, $old['keterangan'] ?: null, $old['tindakan'] ?: null,
                 (int) ($_SESSION['user']['id'] ?? 0) ?: null,
+                $bukti ? $bukti['file'] : null,
+                $bukti ? $bukti['original'] : null,
+                $bukti ? $bukti['type'] : null,
+                $bukti ? $bukti['size'] : null,
             ]
         );
 
@@ -84,6 +101,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect_to(rtrim(APP_BASE, '/') . '/siswa/detail.php?id=' . $old['siswa_id']);
         }
         $errors['siswa_id'] = 'Gagal menyimpan data ke database.';
+        if ($bukti) {
+            hapus_bukti_pelanggaran($bukti['file']);
+        }
+    }
+
+    if ($buktiErr) {
+        $errors['bukti'] = $buktiErr;
+    }
+
+    if ($bukti && $errors) {
+        hapus_bukti_pelanggaran($bukti['file']);
     }
 }
 
@@ -94,7 +122,7 @@ require_once __DIR__ . '/../includes/header.php';
     <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/riwayat.php" class="secondary-btn">Riwayat Pelanggaran</a>
 </div>
 <div class="card form-card">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <div class="form-grid">
             <div class="form-group">
                 <label>Siswa</label>
@@ -144,6 +172,12 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-group" style="grid-column: 1 / -1;">
                 <label>Tindakan Diambil</label>
                 <textarea name="tindakan" rows="4"><?= e($old['tindakan']) ?></textarea>
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Barang Bukti (foto / dokumen)</label>
+                <input type="file" name="bukti" accept=".jpg,.jpeg,.png,.webp,.pdf" class="<?= isset($errors['bukti']) ? 'input-invalid' : '' ?>">
+                <small style="color: var(--text-muted);">JPG, PNG, atau PDF - maksimal 2MB - 1 file (opsional)</small>
+                <?php if (isset($errors['bukti'])): ?><span class="field-error"><?= e($errors['bukti']) ?></span><?php endif; ?>
             </div>
         </div>
         <div class="form-actions">

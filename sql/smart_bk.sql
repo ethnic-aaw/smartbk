@@ -58,6 +58,10 @@ CREATE TABLE IF NOT EXISTS pelanggaran_siswa (
   keterangan TEXT NULL,
   tindakan TEXT NULL,
   pelapor_id INT NULL,
+  bukti_file VARCHAR(255) NULL,
+  bukti_original VARCHAR(255) NULL,
+  bukti_type VARCHAR(50) NULL,
+  bukti_size INT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
