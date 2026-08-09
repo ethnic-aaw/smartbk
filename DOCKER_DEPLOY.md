@@ -173,12 +173,25 @@ cat backup_smartbk.sql | docker compose exec -T db sh -c 'mysql -u root -p"$MYSQ
 
 ## Troubleshooting
 
-**Akses menampilkan "Koneksi database belum tersedia"**
+**Aplikasi menampilkan `Access denied for user 'smartbk'` (password salah)**
+
+Gejala: halaman menampilkan `Fatal error: mysqli_sql_exception: Access denied ... (using password: YES)`.
+
+Penyebab: MySQL hanya membuat user `smartbk` saat volume DB dibuat pertama kali. Jika `DB_PASS` di `.env` diubah belakangan, MySQL tetap memakai password lama → aplikasi ditolak.
+
+Perbaikan tanpa kehilangan data (samakan password MySQL dengan `.env`):
 ```bash
-# pastikan db container sehat
-docker compose ps
-docker compose logs db | tail -50
+# 1. set/pastikan DB_PASS & MYSQL_ROOT_PASSWORD di .env sudah benar
+nano .env
+
+# 2. samakan password user 'smartbk' dengan DB_PASS di .env
+bash docker/sync_db_password.sh
+
+# 3. restart agar container app memakai kredensial baru
+docker compose restart app
 ```
+
+> Alternatif cepat (data DB HILANG, fresh install): `docker compose down -v` lalu `docker compose up -d --build`.
 
 **Upload foto gagal / permission denied**
 ```bash
@@ -190,7 +203,9 @@ sudo chmod -R 777 assets/uploads
 Ubah `9000:9000` menjadi port lain (misal `9001:9000`) di `docker-compose.yml` DAN di `Dockerfile` (kolom `EXPOSE`, `docker/ports.conf`, `docker/000-default.conf`), lalu akses `http://IP_SERVER:PORT_BARU/`.
 
 **Container db error password**
-Volume DB lama menyimpan kredensial sebelumnya. Hapus volume lalu ulangi:
+Volume DB lama menyimpan kredensial sebelumnya. Pilihan:
+- Tanpa kehilangan data: `bash docker/sync_db_password.sh` lalu `docker compose restart app`.
+- Reset total (data hilang): hapus volume lalu ulangi:
 ```bash
 docker compose down -v
 # isi ulang .env lalu
