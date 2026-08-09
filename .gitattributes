@@ -1,0 +1,8 @@
+# Pastikan file penting ini selalu tersimpan/checkout dengan LF,
+# agar skrip bash & konfigurasi Apache bekerja di server Linux
+# (menghindari error "\r: command not found" / konfigurasi rusak).
+*.sh text eol=lf
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+docker/*.conf text eol=lf
+docker/*.ini text eol=lf
