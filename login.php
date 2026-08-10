@@ -72,6 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($message): ?>
             <div class="alert error"><?= htmlspecialchars($message) ?></div>
         <?php endif; ?>
+        <?php if (!$yearOptions): ?>
+            <div class="alert error">Belum ada data tahun ajaran. Pastikan database sudah di-import dari <code>sql/smart_bk.sql</code> (berisi tahun ajaran 2024/2025).</div>
+        <?php endif; ?>
         <form method="post">
             <div class="form-group" style="margin-bottom: 14px;">
                 <label for="username">Username</label>

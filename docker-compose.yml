@@ -36,8 +36,10 @@ services:
       TZ: Asia/Jakarta
     volumes:
       - db_data:/var/lib/mysql
-      # Import smart_bk.sql otomatis saat volume DB pertama kali dibuat
-      - ./sql:/docker-entrypoint-initdb.d:ro
+      # Import smart_bk.sql otomatis saat volume DB pertama kali dibuat.
+      # Hanya file fresh-install yang di-mount (bukan folder sql/ berisi migration),
+      # karena migration_*.sql error bila dijalankan sebelum tabel dibuat.
+      - ./sql/smart_bk.sql:/docker-entrypoint-initdb.d/01-smart_bk.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
