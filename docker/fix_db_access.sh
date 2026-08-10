@@ -2,7 +2,8 @@
 # Perbaiki "Access denied for user 'smartbk'" di Smart BK
 #
 # Pemakaian (jalankan di server, di folder project):
-#   bash docker/fix_db_access.sh            # diagnosa + perbaiki (data DB aman)
+#   bash docker/fix_db_access.sh            # diagnosa + perbaiki (data DB aman, butuh .env)
+#   bash docker/fix_db_access.sh --auto     # otomatis dari env container db (tanpa .env, data aman)
 #   bash docker/fix_db_access.sh --reset    # jika masih gagal: reset volume (data DB HILANG)
 #
 # Alur: cek .env -> uji kredensial aplikasi -> jika ditolak, samakan password
@@ -14,7 +15,11 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 RESET=0
-[ "${1:-}" = "--reset" ] && RESET=1
+AUTO=0
+case "${1:-}" in
+    --reset) RESET=1 ;;
+    --auto)  AUTO=1 ;;
+esac
 
 ENV_FILE=".env"
 DB_NAME="smart_bk"
@@ -25,26 +30,40 @@ info() { echo "[INFO] $1"; }
 
 get_env() { sed -n "s/^$1=//p" "$ENV_FILE" | tail -n 1; }
 
-# ---------- 1. Validasi .env ----------
-echo "==> Cek file $ENV_FILE"
-if [ ! -f "$ENV_FILE" ]; then
-    fail "$ENV_FILE tidak ditemukan. Buat dulu: cp .env.example .env lalu isi DB_PASS dan MYSQL_ROOT_PASSWORD."
+# ---------- 1. Sumber kredensial ----------
+if [ "$AUTO" -eq 1 ]; then
+    echo "==> Mode --auto: ambil kredensial dari environment container db (tanpa .env)"
+    if [ -z "$(docker compose ps -q db 2>/dev/null)" ]; then
+        fail "Container 'db' belum berjalan. Mulai dulu: docker compose up -d --build"
+    fi
+    DB_USER="$(docker compose exec -T db sh -c 'echo "$MYSQL_USER"')"
+    DB_PASS="$(docker compose exec -T db sh -c 'echo "$MYSQL_PASSWORD"')"
+    MYSQL_ROOT_PASSWORD="$(docker compose exec -T db sh -c 'echo "$MYSQL_ROOT_PASSWORD"')"
+    [ -n "$DB_USER" ] || DB_USER="smartbk"
+    [ -n "$DB_PASS" ] || fail "Container db tidak punya MYSQL_PASSWORD di env. Cek: docker compose config"
+    [ -n "$MYSQL_ROOT_PASSWORD" ] || fail "Container db tidak punya MYSQL_ROOT_PASSWORD di env. Cek: docker compose config"
+    ok "Menggunakan kredensial container db: DB_USER=$DB_USER , DB_NAME=$DB_NAME"
+else
+    echo "==> Cek file $ENV_FILE"
+    if [ ! -f "$ENV_FILE" ]; then
+        fail "$ENV_FILE tidak ditemukan. Buat dulu: cp .env.example .env lalu isi DB_PASS dan MYSQL_ROOT_PASSWORD."
+    fi
+
+    DB_USER="$(get_env DB_USER)"
+    DB_PASS="$(get_env DB_PASS)"
+    MYSQL_ROOT_PASSWORD="$(get_env MYSQL_ROOT_PASSWORD)"
+
+    [ -n "$DB_USER" ] || DB_USER="smartbk"
+
+    if [ -z "$DB_PASS" ]; then
+        fail "Variabel DB_PASS kosong di $ENV_FILE. Isi password yang akan dipakai aplikasi."
+    fi
+    case "$DB_PASS" in
+        *"'"*) fail "DB_PASS mengandung kutip tunggal (') yang tidak didukung script ini. Ganti password di $ENV_FILE." ;;
+    esac
+
+    ok "DB_USER=$DB_USER , DB_NAME=$DB_NAME"
 fi
-
-DB_USER="$(get_env DB_USER)"
-DB_PASS="$(get_env DB_PASS)"
-MYSQL_ROOT_PASSWORD="$(get_env MYSQL_ROOT_PASSWORD)"
-
-[ -n "$DB_USER" ] || DB_USER="smartbk"
-
-if [ -z "$DB_PASS" ]; then
-    fail "Variabel DB_PASS kosong di $ENV_FILE. Isi password yang akan dipakai aplikasi."
-fi
-case "$DB_PASS" in
-    *"'"*) fail "DB_PASS mengandung kutip tunggal (') yang tidak didukung script ini. Ganti password di $ENV_FILE." ;;
-esac
-
-ok "DB_USER=$DB_USER , DB_NAME=$DB_NAME"
 
 # ---------- 2. Pastikan container db jalan ----------
 echo "==> Cek container db"

@@ -8,12 +8,15 @@ $dbPass = getenv('DB_PASS') ?: '';
 
 $dbError = null;
 
-$mysqli = @new mysqli($dbHost, $dbUser, $dbPass, $dbName);
-
-if ($mysqli->connect_errno) {
-    $dbError = 'Koneksi database belum tersedia. Siapkan server MySQL lalu impor sql/smart_bk.sql.';
-} else {
+try {
+    $mysqli = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
+    if ($mysqli->connect_errno) {
+        throw new mysqli_sql_exception($mysqli->connect_error);
+    }
     $mysqli->set_charset('utf8mb4');
+} catch (mysqli_sql_exception $e) {
+    $mysqli = null;
+    $dbError = 'Koneksi database belum tersedia. Siapkan server MySQL lalu impor sql/smart_bk.sql.';
 }
 
 function db_connect()
