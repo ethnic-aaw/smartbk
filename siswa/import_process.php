@@ -135,10 +135,16 @@ foreach ($csvData as $row) {
     $kelasNama = trim($row[3] ?? '');
     $tempatLahir = trim($row[4] ?? '');
     $tanggalLahir = trim($row[5] ?? '');
-    $namaOrtu = trim($row[6] ?? '');
-    $noHpOrtu = trim($row[7] ?? '');
-    $alamat = trim($row[8] ?? '');
-    $status = trim($row[9] ?? 'Aktif');
+    $namaAyah = trim($row[6] ?? '');
+    $noHpAyah = trim($row[7] ?? '');
+    $pekerjaanAyah = trim($row[8] ?? '');
+    $namaIbu = trim($row[9] ?? '');
+    $noHpIbu = trim($row[10] ?? '');
+    $pekerjaanIbu = trim($row[11] ?? '');
+    $namaWali = trim($row[12] ?? '');
+    $alamatOrtu = trim($row[13] ?? '');
+    $alamat = trim($row[14] ?? '');
+    $status = trim($row[15] ?? 'Aktif');
     
     // Validation: NIPD
     if ($nipd === '') {
@@ -220,8 +226,14 @@ foreach ($csvData as $row) {
         'kelas_nama' => $kelasNama,
         'tempat_lahir' => $tempatLahir,
         'tanggal_lahir' => $tanggalLahir !== '' ? $tanggalLahir : null,
-        'nama_orang_tua' => $namaOrtu,
-        'no_hp_orang_tua' => $noHpOrtu,
+        'nama_ayah' => $namaAyah,
+        'no_hp_ayah' => $noHpAyah,
+        'pekerjaan_ayah' => $pekerjaanAyah,
+        'nama_ibu' => $namaIbu,
+        'no_hp_ibu' => $noHpIbu,
+        'pekerjaan_ibu' => $pekerjaanIbu,
+        'nama_wali' => $namaWali,
+        'alamat_orang_tua' => $alamatOrtu,
         'alamat' => $alamat,
         'status' => $status,
         'warnings' => $warning,

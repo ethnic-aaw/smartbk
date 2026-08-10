@@ -8,7 +8,7 @@ if (!can_see_all_data()) {
     redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
 }
 
-$pageTitle = 'Konsultasi Siswa';
+$pageTitle = 'Konseling';
 $activeMenu = 'konsultasi';
 
 $search = trim($_GET['q'] ?? '');
@@ -75,8 +75,8 @@ function ringkas(string $text, int $max = 80): string
 require_once __DIR__ . '/../includes/header.php';
 ?>
 <div class="page-header">
-    <h3>Konsultasi Siswa</h3>
-    <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/tambah.php" class="primary-btn">+ Catat Konsultasi</a>
+    <h3>Konseling</h3>
+    <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/tambah.php" class="primary-btn">+ Catat Konseling</a>
 </div>
 
 <div class="card table-card">
@@ -105,7 +105,7 @@ require_once __DIR__ . '/../includes/header.php';
             </thead>
             <tbody>
                 <?php if (!$list): ?>
-                    <tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Belum ada catatan konsultasi.</td></tr>
+                    <tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Belum ada catatan konseling.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($list as $i => $k): ?>
                     <tr>
@@ -130,7 +130,7 @@ require_once __DIR__ . '/../includes/header.php';
                         <td>
                             <div class="row-actions">
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/edit.php?id=<?= (int) $k['id'] ?>" class="link-btn link-edit">Edit</a>
-                                <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/konsultasi/hapus.php?id=<?= (int) $k['id'] ?>" data-confirm="Hapus catatan konsultasi <?= e($k['siswa_nama']) ?>?">
+                                <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/konsultasi/hapus.php?id=<?= (int) $k['id'] ?>" data-confirm="Hapus catatan konseling <?= e($k['siswa_nama']) ?>?">
                                     <button type="submit" class="link-btn link-delete">Hapus</button>
                                 </form>
                             </div>

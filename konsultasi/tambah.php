@@ -9,7 +9,7 @@ if (!can_see_all_data()) {
     redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
 }
 
-$pageTitle = 'Catat Konsultasi';
+$pageTitle = 'Catat Konseling';
 $activeMenu = 'konsultasi';
 
 $tahunAjaran = current_tahun_ajaran();
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($ok) {
-            set_flash('success', 'Konsultasi berhasil dicatat.');
+            set_flash('success', 'Konseling berhasil dicatat.');
             redirect_to(rtrim(APP_BASE, '/') . '/siswa/detail.php?id=' . $old['siswa_id']);
         }
         $errors['siswa_id'] = 'Gagal menyimpan data ke database.';
@@ -126,7 +126,7 @@ if (!empty($old['siswa_id'])) {
 require_once __DIR__ . '/../includes/header.php';
 ?>
 <div class="page-header">
-    <h3>Form Catat Konsultasi</h3>
+    <h3>Form Catat Konseling</h3>
     <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/index.php" class="secondary-btn">Kembali</a>
 </div>
 <div class="card form-card">

@@ -102,10 +102,10 @@ if (isset($_SERVER['SCRIPT_FILENAME']) && realpath($_SERVER['SCRIPT_FILENAME']) 
             'POST /api/buku_tamu/create.php' => 'Create buku tamu',
             'PUT /api/buku_tamu/update.php?id={id}' => 'Update buku tamu',
             'DELETE /api/buku_tamu/delete.php?id={id}' => 'Delete buku tamu',
-            'GET /api/konsultasi/list.php' => 'List konsultasi siswa',
-            'POST /api/konsultasi/create.php' => 'Create konsultasi',
-            'PUT /api/konsultasi/update.php?id={id}' => 'Update konsultasi',
-            'DELETE /api/konsultasi/delete.php?id={id}' => 'Delete konsultasi'
+            'GET /api/konsultasi/list.php' => 'List konseling',
+            'POST /api/konsultasi/create.php' => 'Create konseling',
+            'PUT /api/konsultasi/update.php?id={id}' => 'Update konseling',
+            'DELETE /api/konsultasi/delete.php?id={id}' => 'Delete konseling'
         ]
     ]);
 }

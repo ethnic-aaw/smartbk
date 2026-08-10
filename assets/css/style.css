@@ -105,6 +105,20 @@ input, select, textarea {
 }
 input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
 .form-actions { display: flex; gap: 10px; margin-top: 18px; }
+.ortu-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+.ortu-col { display: flex; flex-direction: column; gap: 16px; }
+.ortu-col .form-group { min-width: 0; }
+.tabs { margin-bottom: 18px; }
+.tab-nav { display: flex; gap: 6px; border-bottom: 2px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn {
+    border: 0; background: transparent; padding: 10px 16px; font-weight: 600; font-size: 14px;
+    color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+    transition: all .2s ease;
+}
+.tab-btn:hover { color: var(--primary); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 .alert { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid var(--primary); background: #eff6ff; color: var(--text-primary); }
 .alert.success { border-color: var(--accent); background: #f0fdf4; }
 .alert.error { border-color: var(--danger); background: #fff1f2; }

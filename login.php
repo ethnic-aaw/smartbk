@@ -92,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <button class="primary-btn" style="width: 100%;">Masuk</button>
         </form>
-        <p style="margin-top: 14px; font-size: 13px; color: var(--text-muted);">Demo: username <strong>admin</strong>, password <strong>admin123</strong></p>
     </div>
 </div>
 </body>

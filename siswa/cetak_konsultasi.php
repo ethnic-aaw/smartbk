@@ -72,7 +72,7 @@ $ttl = trim(($siswa['tempat_lahir'] ?: '') . ($siswa['tanggal_lahir'] ? ', ' . t
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rekap Konsultasi - <?= htmlspecialchars($siswa['nama']) ?></title>
+<title>Rekap Konseling - <?= htmlspecialchars($siswa['nama']) ?></title>
 <style>
 * { box-sizing: border-box; }
 body {
@@ -165,7 +165,7 @@ table.riwayat th { background: #f0f0f0; font-weight: bold; text-align: center; }
 </head>
 <body>
 <div class="toolbar">
-    <strong>🖨 Preview Rekap Konsultasi</strong>
+    <strong>🖨 Preview Rekap Konseling</strong>
     <span style="flex:1;"></span>
     <a href="<?= rtrim(APP_BASE, '/') ?>/siswa/detail.php?id=<?= (int) $siswa['id'] ?>">Kembali</a>
     <button onclick="window.print()">🖨 Cetak / Simpan PDF</button>
@@ -186,7 +186,7 @@ table.riwayat th { background: #f0f0f0; font-weight: bold; text-align: center; }
     <div class="garis-kop"></div>
     <div class="garis-kop2"></div>
 
-    <h2 class="judul">Rekapitulasi Konsultasi Siswa</h2>
+    <h2 class="judul">Rekapitulasi Konseling Siswa</h2>
 
     <!-- BIODATA -->
     <table class="biodata">
@@ -198,7 +198,7 @@ table.riwayat th { background: #f0f0f0; font-weight: bold; text-align: center; }
     </table>
 
     <!-- RIWAYAT KONSULTASI -->
-    <h3 class="seksi">Riwayat Konsultasi</h3>
+    <h3 class="seksi">Riwayat Konseling</h3>
     <table class="riwayat">
         <thead>
             <tr>
@@ -211,7 +211,7 @@ table.riwayat th { background: #f0f0f0; font-weight: bold; text-align: center; }
         </thead>
         <tbody>
             <?php if (!$konsultasi): ?>
-                <tr><td colspan="5" class="no-data">Belum ada catatan konsultasi.</td></tr>
+                <tr><td colspan="5" class="no-data">Belum ada catatan konseling.</td></tr>
             <?php endif; ?>
             <?php foreach ($konsultasi as $i => $k): ?>
                 <tr>

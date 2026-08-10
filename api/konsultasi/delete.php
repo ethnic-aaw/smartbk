@@ -9,12 +9,12 @@ require_role(['Admin', 'Guru BK']);
 
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) {
-    api_error('ID konsultasi tidak valid.');
+    api_error('ID konseling tidak valid.');
 }
 
 $existing = db_fetch('SELECT * FROM konsultasi_siswa WHERE id = ? LIMIT 1', [$id], 'row');
 if (!$existing) {
-    api_error('Konsultasi tidak ditemukan.', 404);
+    api_error('Konseling tidak ditemukan.', 404);
 }
 
 // Hapus file lampiran jika ada
@@ -28,7 +28,7 @@ if (!empty($existing['lampiran_file'])) {
 $stmt = db_query('DELETE FROM konsultasi_siswa WHERE id = ?', [$id]);
 
 if (!$stmt) {
-    api_error('Gagal menghapus konsultasi.', 500);
+    api_error('Gagal menghapus konseling.', 500);
 }
 
-api_success([], 'Konsultasi berhasil dihapus.');
+api_success([], 'Konseling berhasil dihapus.');

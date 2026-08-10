@@ -40,9 +40,9 @@ $stmt = db_query(
 );
 
 if (!$stmt) {
-    api_error('Gagal menyimpan konsultasi.', 500);
+    api_error('Gagal menyimpan konseling.', 500);
 }
 
 $newId = db_last_id();
 
-api_success(['id' => $newId], 'Konsultasi berhasil dicatat.');
+api_success(['id' => $newId], 'Konseling berhasil dicatat.');

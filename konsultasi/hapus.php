@@ -15,16 +15,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
     $kons = db_fetch('SELECT * FROM konsultasi_siswa WHERE id = ? LIMIT 1', [$id], 'row');
 
     if (!$kons) {
-        set_flash('error', 'Data konsultasi tidak ditemukan.');
+        set_flash('error', 'Data konseling tidak ditemukan.');
     } else {
         if (!empty($kons['lampiran_file'])) {
             hapus_lampiran_konsultasi($kons['lampiran_file']);
         }
         $ok = db_query('DELETE FROM konsultasi_siswa WHERE id = ?', [$id]);
         if ($ok) {
-            set_flash('success', 'Catatan konsultasi beserta lampirannya telah dihapus.');
+            set_flash('success', 'Catatan konseling beserta lampirannya telah dihapus.');
         } else {
-            set_flash('error', 'Gagal menghapus data konsultasi.');
+            set_flash('error', 'Gagal menghapus data konseling.');
         }
     }
 } else {

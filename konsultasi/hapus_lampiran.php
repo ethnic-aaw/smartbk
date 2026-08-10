@@ -15,9 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
     $kons = db_fetch('SELECT * FROM konsultasi_siswa WHERE id = ? LIMIT 1', [$id], 'row');
 
     if (!$kons) {
-        set_flash('error', 'Data konsultasi tidak ditemukan.');
+        set_flash('error', 'Data konseling tidak ditemukan.');
     } elseif (empty($kons['lampiran_file'])) {
-        set_flash('error', 'Konsultasi ini tidak memiliki lampiran.');
+        set_flash('error', 'Konseling ini tidak memiliki lampiran.');
     } else {
         hapus_lampiran_konsultasi($kons['lampiran_file']);
         $ok = db_query(

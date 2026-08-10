@@ -36,7 +36,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <li><strong>Jenis Kelamin</strong> (wajib: L atau P)</li>
                 <li>Kelas (opsional)</li>
                 <li>Tempat/Tanggal Lahir (opsional)</li>
-                <li>Data Orang Tua (opsional)</li>
+                <li>Data Orang Tua — Nama Ayah, No HP Ayah, Pekerjaan Ayah, Nama Ibu, No HP Ibu, Pekerjaan Ibu, Nama Wali, Alamat Orang Tua (opsional)</li>
                 <li>Alamat (opsional)</li>
                 <li>Status (opsional, default: Aktif)</li>
             </ul>
@@ -131,8 +131,14 @@ $kelas2Preview = isset($kelasPreview[1]) ? $kelasPreview[1]['nama_kelas'] : $kel
                     <th>Kelas</th>
                     <th>Tempat Lahir</th>
                     <th>Tanggal Lahir</th>
-                    <th>Nama Orang Tua</th>
-                    <th>No HP Orang Tua</th>
+                    <th>Nama Ayah</th>
+                    <th>No HP Ayah</th>
+                    <th>Pekerjaan Ayah</th>
+                    <th>Nama Ibu</th>
+                    <th>No HP Ibu</th>
+                    <th>Pekerjaan Ibu</th>
+                    <th>Nama Wali</th>
+                    <th>Alamat Orang Tua</th>
                     <th>Alamat</th>
                     <th>Status</th>
                 </tr>
@@ -145,8 +151,14 @@ $kelas2Preview = isset($kelasPreview[1]) ? $kelasPreview[1]['nama_kelas'] : $kel
                     <td><?= e($kelas1Preview) ?></td>
                     <td>Jakarta</td>
                     <td>2008-01-15</td>
-                    <td>Nama Ortu 1</td>
-                    <td>081234567890</td>
+                    <td>Nama Ayah 1</td>
+                    <td>081234567891</td>
+                    <td>Wiraswasta</td>
+                    <td>Nama Ibu 1</td>
+                    <td>081234567892</td>
+                    <td>Ibu Rumah Tangga</td>
+                    <td></td>
+                    <td></td>
                     <td>Jl. Contoh No. 1</td>
                     <td>Aktif</td>
                 </tr>
@@ -157,8 +169,14 @@ $kelas2Preview = isset($kelasPreview[1]) ? $kelasPreview[1]['nama_kelas'] : $kel
                     <td><?= e($kelas2Preview) ?></td>
                     <td>Bandung</td>
                     <td>2008-03-20</td>
-                    <td>Nama Ortu 2</td>
-                    <td>081234567891</td>
+                    <td>Nama Ayah 2</td>
+                    <td>081234567893</td>
+                    <td>Wiraswasta</td>
+                    <td>Nama Ibu 2</td>
+                    <td>081234567894</td>
+                    <td>PNS</td>
+                    <td></td>
+                    <td></td>
                     <td>Jl. Contoh No. 2</td>
                     <td>Aktif</td>
                 </tr>
@@ -176,6 +194,7 @@ $kelas2Preview = isset($kelasPreview[1]) ? $kelasPreview[1]['nama_kelas'] : $kel
                 <li><strong>Kelas</strong> - opsional, harus sesuai daftar kelas</li>
                 <li><strong>Tanggal Lahir</strong> - format <code>YYYY-MM-DD</code></li>
                 <li><strong>Status</strong> - Aktif / Tidak Aktif / Pindah / Lulus</li>
+                <li><strong>Data orang tua</strong> (nama/hp/pekerjaan ayah-ibu, nama wali, alamat ortu) - opsional</li>
             </ul>
         </div>
         <div style="padding: 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 13px;">

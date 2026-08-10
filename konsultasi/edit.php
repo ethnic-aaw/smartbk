@@ -9,14 +9,14 @@ if (!can_see_all_data()) {
     redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
 }
 
-$pageTitle = 'Edit Konsultasi';
+$pageTitle = 'Edit Konseling';
 $activeMenu = 'konsultasi';
 
 $id = (int) ($_GET['id'] ?? 0);
 $kons = db_fetch('SELECT * FROM konsultasi_siswa WHERE id = ? LIMIT 1', [$id], 'row');
 
 if (!$kons) {
-    set_flash('error', 'Data konsultasi tidak ditemukan.');
+    set_flash('error', 'Data konseling tidak ditemukan.');
     redirect_to(rtrim(APP_BASE, '/') . '/konsultasi/index.php');
 }
 
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
             }
 
-            set_flash('success', 'Konsultasi berhasil diperbarui.');
+            set_flash('success', 'Konseling berhasil diperbarui.');
             redirect_to(rtrim(APP_BASE, '/') . '/siswa/detail.php?id=' . (int) $kons['siswa_id']);
         }
         $errors['permasalahan'] = 'Gagal memperbarui data di database.';
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 require_once __DIR__ . '/../includes/header.php';
 ?>
 <div class="page-header">
-    <h3>Edit Konsultasi</h3>
+    <h3>Edit Konseling</h3>
     <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/index.php" class="secondary-btn">Kembali</a>
 </div>
 <div class="card form-card">

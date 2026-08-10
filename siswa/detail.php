@@ -71,7 +71,7 @@ require_once __DIR__ . '/../includes/header.php';
     <h3><?= e($siswa['nama']) ?></h3>
     <div class="row-actions">
         <?php if (can_see_all_data()): ?>
-            <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/tambah.php?siswa_id=<?= (int) $siswa['id'] ?>" class="primary-btn">+ Catat Konsultasi</a>
+            <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/tambah.php?siswa_id=<?= (int) $siswa['id'] ?>" class="primary-btn">+ Catat Konseling</a>
             <a href="<?= rtrim(APP_BASE, '/') ?>/siswa/cetak_konsultasi.php?id=<?= (int) $siswa['id'] ?>" class="secondary-btn" target="_blank">🖨 Cetak PDF</a>
         <?php endif; ?>
         <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/tambah.php?siswa_id=<?= (int) $siswa['id'] ?>" class="secondary-btn">+ Catat Pelanggaran</a>
@@ -90,30 +90,60 @@ require_once __DIR__ . '/../includes/header.php';
         <p style="margin:0;color:var(--text-muted);font-size:13px;"><?= e($siswa['nipd']) ?></p>
     </div>
     <div class="card form-card">
-        <div class="form-grid">
-            <div class="form-group"><label>Kelas</label><div><?= e($siswa['nama_kelas'] ?? '-') ?></div></div>
-            <div class="form-group"><label>Jenis Kelamin</label><div><?= $siswa['jenis_kelamin'] === 'L' ? 'Laki-laki' : 'Perempuan' ?></div></div>
-            <div class="form-group"><label>Tempat / Tanggal Lahir</label><div><?= e($siswa['tempat_lahir'] ?: '-') ?><?= $siswa['tanggal_lahir'] ? ' / ' . e($siswa['tanggal_lahir']) : '' ?></div></div>
-            <div class="form-group"><label>Status</label><div><?= e($siswa['status']) ?></div></div>
-            <div class="form-group"><label>Nama Orang Tua</label><div><?= e($siswa['nama_orang_tua'] ?: '-') ?></div></div>
-            <div class="form-group"><label>No. HP Orang Tua</label><div><?= e($siswa['no_hp_orang_tua'] ?: '-') ?></div></div>
-            <div class="form-group"><label>Total Poin</label><div><?= poin_badge($totalPoin) ?></div></div>
-            <div class="form-group">
-                <label>Fase Pelanggaran</label>
-                <div>
-                    <?php $fase = fase_pelanggaran($totalPoin); ?>
-                    <?php if ($fase): ?>
-                        <?= fase_badge($totalPoin) ?>
-                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
-                            <?= e($fase['tindak_lanjut'] ?? '') ?>
-                            <?= !empty($fase['administrasi']) ? ' — ' . e($fase['administrasi']) : '' ?>
+        <div class="tabs" style="margin-bottom: 0;">
+            <div class="tab-nav" style="margin-bottom: 16px;">
+                <button type="button" class="tab-btn active" data-tab="biodata">Biodata Siswa</button>
+                <button type="button" class="tab-btn" data-tab="ortu">Biodata Orang Tua</button>
+                <button type="button" class="tab-btn" data-tab="wali">Biodata Wali</button>
+            </div>
+
+            <div class="tab-panel active" data-tab-panel="biodata">
+                <div class="form-grid">
+                    <div class="form-group"><label>Kelas</label><div><?= e($siswa['nama_kelas'] ?? '-') ?></div></div>
+                    <div class="form-group"><label>Jenis Kelamin</label><div><?= $siswa['jenis_kelamin'] === 'L' ? 'Laki-laki' : 'Perempuan' ?></div></div>
+                    <div class="form-group"><label>Tempat / Tanggal Lahir</label><div><?= e($siswa['tempat_lahir'] ?: '-') ?><?= $siswa['tanggal_lahir'] ? ' / ' . e($siswa['tanggal_lahir']) : '' ?></div></div>
+                    <div class="form-group"><label>Status</label><div><?= e($siswa['status']) ?></div></div>
+                    <div class="form-group"><label>Total Poin</label><div><?= poin_badge($totalPoin) ?></div></div>
+                    <div class="form-group">
+                        <label>Fase Pelanggaran</label>
+                        <div>
+                            <?php $fase = fase_pelanggaran($totalPoin); ?>
+                            <?php if ($fase): ?>
+                                <?= fase_badge($totalPoin) ?>
+                                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+                                    <?= e($fase['tindak_lanjut'] ?? '') ?>
+                                    <?= !empty($fase['administrasi']) ? ' — ' . e($fase['administrasi']) : '' ?>
+                                </div>
+                            <?php else: ?>
+                                <span style="color:var(--text-muted);">-</span>
+                            <?php endif; ?>
                         </div>
-                    <?php else: ?>
-                        <span style="color:var(--text-muted);">-</span>
-                    <?php endif; ?>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;"><label>Alamat</label><div><?= e($siswa['alamat'] ?: '-') ?></div></div>
                 </div>
             </div>
-            <div class="form-group"><label>Alamat</label><div><?= e($siswa['alamat'] ?: '-') ?></div></div>
+
+            <div class="tab-panel" data-tab-panel="ortu">
+                <div class="form-grid ortu-cols">
+                    <div class="ortu-col">
+                        <div class="form-group"><label>Nama Ayah</label><div><?= e($siswa['nama_ayah'] ?: '-') ?></div></div>
+                        <div class="form-group"><label>Pekerjaan Ayah</label><div><?= e($siswa['pekerjaan_ayah'] ?: '-') ?></div></div>
+                        <div class="form-group"><label>No. HP Ayah</label><div><?= e($siswa['no_hp_ayah'] ?: '-') ?></div></div>
+                    </div>
+                    <div class="ortu-col">
+                        <div class="form-group"><label>Nama Ibu</label><div><?= e($siswa['nama_ibu'] ?: '-') ?></div></div>
+                        <div class="form-group"><label>Pekerjaan Ibu</label><div><?= e($siswa['pekerjaan_ibu'] ?: '-') ?></div></div>
+                        <div class="form-group"><label>No. HP Ibu</label><div><?= e($siswa['no_hp_ibu'] ?: '-') ?></div></div>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;"><label>Alamat Orang Tua</label><div><?= e($siswa['alamat_orang_tua'] ?: '-') ?></div></div>
+                </div>
+            </div>
+
+            <div class="tab-panel" data-tab-panel="wali">
+                <div class="form-grid">
+                    <div class="form-group"><label>Nama Wali</label><div><?= e($siswa['nama_wali'] ?: '-') ?></div></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -159,7 +189,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 <?php if (can_see_all_data()): ?>
 <div class="card table-card" style="margin-top:16px;">
-    <h3 style="margin-top: 0;">Riwayat Konsultasi</h3>
+    <h3 style="margin-top: 0;">Riwayat Konseling</h3>
     <div class="table-wrap">
         <table>
             <thead>
@@ -167,7 +197,7 @@ require_once __DIR__ . '/../includes/header.php';
             </thead>
             <tbody>
                 <?php if (!$konsultasi): ?>
-                    <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada catatan konsultasi.</td></tr>
+                    <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada catatan konseling.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($konsultasi as $k): ?>
                     <tr>
@@ -187,7 +217,7 @@ require_once __DIR__ . '/../includes/header.php';
                         <td>
                             <div class="row-actions">
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/edit.php?id=<?= (int) $k['id'] ?>" class="link-btn link-edit">Edit</a>
-                                <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/konsultasi/hapus.php?id=<?= (int) $k['id'] ?>" data-confirm="Hapus catatan konsultasi ini?">
+                                <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/konsultasi/hapus.php?id=<?= (int) $k['id'] ?>" data-confirm="Hapus catatan konseling ini?">
                                     <button type="submit" class="link-btn link-delete">Hapus</button>
                                 </form>
                             </div>

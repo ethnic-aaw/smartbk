@@ -41,8 +41,14 @@ foreach ($validData as $data) {
                 kelas_id = ?, 
                 tempat_lahir = ?, 
                 tanggal_lahir = ?, 
-                nama_orang_tua = ?, 
-                no_hp_orang_tua = ?, 
+                nama_ayah = ?, 
+                no_hp_ayah = ?, 
+                pekerjaan_ayah = ?, 
+                nama_ibu = ?, 
+                no_hp_ibu = ?, 
+                pekerjaan_ibu = ?, 
+                nama_wali = ?, 
+                alamat_orang_tua = ?, 
                 alamat = ?, 
                 status = ?
             WHERE id = ?',
@@ -52,8 +58,14 @@ foreach ($validData as $data) {
                 $data['kelas_id'],
                 $data['tempat_lahir'] ?: null,
                 $data['tanggal_lahir'],
-                $data['nama_orang_tua'] ?: null,
-                $data['no_hp_orang_tua'] ?: null,
+                $data['nama_ayah'] ?: null,
+                $data['no_hp_ayah'] ?: null,
+                $data['pekerjaan_ayah'] ?: null,
+                $data['nama_ibu'] ?: null,
+                $data['no_hp_ibu'] ?: null,
+                $data['pekerjaan_ibu'] ?: null,
+                $data['nama_wali'] ?: null,
+                $data['alamat_orang_tua'] ?: null,
                 $data['alamat'] ?: null,
                 $data['status'],
                 $data['siswa_id']
@@ -70,9 +82,11 @@ foreach ($validData as $data) {
         $ok = db_query(
             'INSERT INTO siswa (
                 nipd, nama, jenis_kelamin, kelas_id, 
-                tempat_lahir, tanggal_lahir, nama_orang_tua, 
-                no_hp_orang_tua, alamat, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                tempat_lahir, tanggal_lahir, nama_ayah, no_hp_ayah, 
+                pekerjaan_ayah, nama_ibu, no_hp_ibu, 
+                pekerjaan_ibu, nama_wali, alamat_orang_tua, 
+                alamat, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 $data['nipd'],
                 $data['nama'],
@@ -80,8 +94,14 @@ foreach ($validData as $data) {
                 $data['kelas_id'],
                 $data['tempat_lahir'] ?: null,
                 $data['tanggal_lahir'],
-                $data['nama_orang_tua'] ?: null,
-                $data['no_hp_orang_tua'] ?: null,
+                $data['nama_ayah'] ?: null,
+                $data['no_hp_ayah'] ?: null,
+                $data['pekerjaan_ayah'] ?: null,
+                $data['nama_ibu'] ?: null,
+                $data['no_hp_ibu'] ?: null,
+                $data['pekerjaan_ibu'] ?: null,
+                $data['nama_wali'] ?: null,
+                $data['alamat_orang_tua'] ?: null,
                 $data['alamat'] ?: null,
                 $data['status']
             ]

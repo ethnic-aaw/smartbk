@@ -9,12 +9,12 @@ require_role(['Admin', 'Guru BK']);
 
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) {
-    api_error('ID konsultasi tidak valid.');
+    api_error('ID konseling tidak valid.');
 }
 
 $existing = db_fetch('SELECT * FROM konsultasi_siswa WHERE id = ? LIMIT 1', [$id], 'row');
 if (!$existing) {
-    api_error('Konsultasi tidak ditemukan.', 404);
+    api_error('Konseling tidak ditemukan.', 404);
 }
 
 $input = get_json_input();
@@ -41,7 +41,7 @@ $stmt = db_query(
 );
 
 if (!$stmt) {
-    api_error('Gagal mengupdate konsultasi.', 500);
+    api_error('Gagal mengupdate konseling.', 500);
 }
 
-api_success(['id' => $id], 'Konsultasi berhasil diperbarui.');
+api_success(['id' => $id], 'Konseling berhasil diperbarui.');

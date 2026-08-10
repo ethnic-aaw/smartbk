@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const tabs = btn.closest('.tabs');
+            tabs.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+            const target = btn.dataset.tab;
+            tabs.querySelectorAll('.tab-panel').forEach((p) => {
+                p.classList.toggle('active', p.dataset.tabPanel === target);
+            });
+        });
+    });
+
     document.querySelectorAll('.alert .close').forEach((btn) => {
         btn.addEventListener('click', () => btn.closest('.alert').remove());
     });

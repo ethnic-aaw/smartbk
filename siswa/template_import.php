@@ -61,7 +61,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
   </Style>
  </Styles>
  <Worksheet ss:Name="Template Siswa">
-  <Table ss:ExpandedColumnCount="10" ss:ExpandedRowCount="5" x:FullColumns="1" x:FullRows="1">
+  <Table ss:ExpandedColumnCount="16" ss:ExpandedRowCount="5" x:FullColumns="1" x:FullRows="1">
    <Column ss:Width="90"/>
    <Column ss:Width="170"/>
    <Column ss:Width="85"/>
@@ -70,6 +70,12 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
    <Column ss:Width="105"/>
    <Column ss:Width="150"/>
    <Column ss:Width="115"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="115"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="180"/>
    <Column ss:Width="180"/>
    <Column ss:Width="100"/>
    <Row ss:Height="22">
@@ -79,8 +85,14 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     <?= ss_cell('Kelas', 'Header') ?>
     <?= ss_cell('Tempat Lahir', 'Header') ?>
     <?= ss_cell('Tanggal Lahir', 'Header') ?>
-    <?= ss_cell('Nama Orang Tua', 'Header') ?>
-    <?= ss_cell('No HP Orang Tua', 'Header') ?>
+    <?= ss_cell('Nama Ayah', 'Header') ?>
+    <?= ss_cell('No HP Ayah', 'Header') ?>
+    <?= ss_cell('Pekerjaan Ayah', 'Header') ?>
+    <?= ss_cell('Nama Ibu', 'Header') ?>
+    <?= ss_cell('No HP Ibu', 'Header') ?>
+    <?= ss_cell('Pekerjaan Ibu', 'Header') ?>
+    <?= ss_cell('Nama Wali', 'Header') ?>
+    <?= ss_cell('Alamat Orang Tua', 'Header') ?>
     <?= ss_cell('Alamat', 'Header') ?>
     <?= ss_cell('Status', 'Header') ?>
    </Row>
@@ -91,8 +103,14 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     <?= ss_cell($kelas1, 'Example') ?>
     <?= ss_cell('Jakarta', 'Example') ?>
     <?= ss_cell('2008-01-15', 'Example') ?>
-    <?= ss_cell('Nama Orang Tua', 'Example') ?>
-    <?= ss_cell('081234567890', 'Example') ?>
+    <?= ss_cell('Nama Ayah', 'Example') ?>
+    <?= ss_cell('081234567891', 'Example') ?>
+    <?= ss_cell('Wiraswasta', 'Example') ?>
+    <?= ss_cell('Nama Ibu', 'Example') ?>
+    <?= ss_cell('081234567892', 'Example') ?>
+    <?= ss_cell('Ibu Rumah Tangga', 'Example') ?>
+    <?= ss_cell('', 'Example') ?>
+    <?= ss_cell('', 'Example') ?>
     <?= ss_cell('Jl. Contoh No. 1', 'Example') ?>
     <?= ss_cell('Aktif', 'Example') ?>
    </Row>
