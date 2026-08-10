@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     api_error('Method not allowed', 405);
 }
 
-$user = require_role(['Admin', 'Guru BK']);
+$user = require_role(['Admin', 'Guru BK', 'Wali Kelas']);
 
 $input = get_json_input();
 
@@ -23,9 +23,14 @@ if ($jenis_pelanggaran_id <= 0) {
     api_error('Jenis pelanggaran harus dipilih.');
 }
 
-$siswa = db_fetch('SELECT id FROM siswa WHERE id = ? LIMIT 1', [$siswa_id], 'row');
+$siswa = db_fetch('SELECT id, kelas_id FROM siswa WHERE id = ? LIMIT 1', [$siswa_id], 'row');
 if (!$siswa) {
     api_error('Siswa tidak ditemukan.');
+}
+
+$scopeKelasId = current_kelas_scope();
+if ($scopeKelasId && (int) $siswa['kelas_id'] !== $scopeKelasId) {
+    api_error('Siswa bukan bagian dari kelas Anda.');
 }
 
 $jenis = db_fetch('SELECT id FROM jenis_pelanggaran WHERE id = ? LIMIT 1', [$jenis_pelanggaran_id], 'row');

@@ -6,12 +6,6 @@ require_once __DIR__ . '/../includes/upload.php';
 $pageTitle = 'Catat Pelanggaran';
 $activeMenu = 'pelanggaran_riwayat';
 
-// Wali Kelas tidak boleh mencatat pelanggaran
-if (is_wali_kelas()) {
-    set_flash('error', 'Anda tidak memiliki akses untuk mencatat pelanggaran.');
-    redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
-}
-
 $tahunAjaran = current_tahun_ajaran();
 $userKelasId = get_user_kelas_id();
 

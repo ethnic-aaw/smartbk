@@ -87,7 +87,7 @@ require_once __DIR__ . '/../includes/header.php';
 ?>
 <div class="page-header">
     <h3>Riwayat Pelanggaran<?php if (is_wali_kelas()): ?> - Kelas Saya<?php endif; ?></h3>
-    <?php if (can_see_all_data()): ?>
+    <?php if (can_see_all_data() || is_wali_kelas()): ?>
         <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/tambah.php" class="primary-btn">+ Catat Pelanggaran</a>
     <?php endif; ?>
 </div>
