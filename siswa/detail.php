@@ -176,6 +176,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 <?php endif; ?>
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/edit.php?id=<?= (int) $r['id'] ?>" class="link-btn link-edit">Edit</a>
                                 <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/hapus.php?id=<?= (int) $r['id'] ?>" data-confirm="Hapus catatan pelanggaran ini?">
+                                    <?= csrf_field() ?>
                                     <button type="submit" class="link-btn link-delete">Hapus</button>
                                 </form>
                             </div>
@@ -218,6 +219,7 @@ require_once __DIR__ . '/../includes/header.php';
                             <div class="row-actions">
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/konsultasi/edit.php?id=<?= (int) $k['id'] ?>" class="link-btn link-edit">Edit</a>
                                 <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/konsultasi/hapus.php?id=<?= (int) $k['id'] ?>" data-confirm="Hapus catatan konseling ini?">
+                                    <?= csrf_field() ?>
                                     <button type="submit" class="link-btn link-delete">Hapus</button>
                                 </form>
                             </div>

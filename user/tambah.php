@@ -15,7 +15,7 @@ $kelasList = db_fetch('SELECT id, nama_kelas FROM kelas ORDER BY nama_kelas ASC'
 $kelasList = $kelasList ?: [];
 
 $errors = [];
-$old = ['nama' => '', 'username' => '', 'role' => 'Admin', 'kelas_id' => '', 'status' => 'Aktif'];
+$old = ['nama' => '', 'username' => '', 'role' => 'Admin', 'kelas_id' => '', 'status' => 'Aktif', 'approval_status' => 'approved'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old = [
@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'role' => trim($_POST['role'] ?? 'Admin'),
         'kelas_id' => (int) ($_POST['kelas_id'] ?? 0) ?: null,
         'status' => trim($_POST['status'] ?? 'Aktif') === 'Nonaktif' ? 'Nonaktif' : 'Aktif',
+        'approval_status' => 'approved', // Admin creates are auto-approved
     ];
     $password = (string) ($_POST['password'] ?? '');
 
@@ -57,12 +58,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errors) {
         $hash = password_hash($password, PASSWORD_BCRYPT);
         $ok = db_query(
-            'INSERT INTO users (nama, username, password_hash, role, kelas_id, status) VALUES (?, ?, ?, ?, ?, ?)',
-            [$old['nama'], $old['username'], $hash, $old['role'], $old['kelas_id'], $old['status']]
+            'INSERT INTO users (nama, username, email, password_hash, role, kelas_id, status, approval_status, email_verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+            [$old['nama'], $old['username'], $old['username'], $hash, $old['role'], $old['kelas_id'], $old['status'], $old['approval_status']]
         );
 
         if ($ok) {
-            set_flash('success', 'User "' . $old['nama'] . '" berhasil ditambahkan.');
+            $userId = db_last_id();
+            
+            // Jika Wali Kelas, update kelas.wali_kelas_id
+            if ($old['role'] === 'Wali Kelas' && !empty($old['kelas_id'])) {
+                db_query('UPDATE kelas SET wali_kelas_id = ? WHERE id = ?', [$userId, $old['kelas_id']]);
+            }
+            
+            set_flash('success', 'User "' . $old['nama'] . '" berhasil ditambahkan (auto-approved).');
             redirect_to(rtrim(APP_BASE, '/') . '/user/index.php');
         }
         $errors['nama'] = 'Gagal menyimpan data ke database.';
@@ -77,6 +85,7 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 <div class="card form-card">
     <form method="post">
+        <?= csrf_field() ?>
         <div class="form-grid">
             <div class="form-group">
                 <label>Nama Lengkap</label>
@@ -117,6 +126,10 @@ require_once __DIR__ . '/../includes/header.php';
                     <option value="Aktif" <?= $old['status'] === 'Aktif' ? 'selected' : '' ?>>Aktif</option>
                     <option value="Nonaktif" <?= $old['status'] === 'Nonaktif' ? 'selected' : '' ?>>Nonaktif</option>
                 </select>
+            </div>
+            <div class="form-group" style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1rem;">
+                <strong>Info:</strong> User yang dibuat Admin otomatis <strong>disetujui (approved)</strong> dan bisa login langsung.
+                Email/username diset sama untuk local login. Approval hanya untuk registrasi via Google OAuth.
             </div>
         </div>
         <div class="form-actions">

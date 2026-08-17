@@ -115,6 +115,7 @@ require_once __DIR__ . '/../includes/header.php';
                             <div class="row-actions">
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/buku_tamu/edit.php?id=<?= (int) $t['id'] ?>" class="link-btn link-edit">Edit</a>
                                 <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/buku_tamu/hapus.php?id=<?= (int) $t['id'] ?>" data-confirm="Hapus catatan tamu <?= e($t['nama_tamu']) ?>?">
+                                    <?= csrf_field() ?>
                                     <button type="submit" class="link-btn link-delete">Hapus</button>
                                 </form>
                             </div>

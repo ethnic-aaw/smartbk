@@ -22,6 +22,10 @@ if (!db_is_ready()) {
     api_error(db_error(), 500);
 }
 
+if (is_login_locked()) {
+    api_error('Terlalu banyak percobaan login. Coba lagi dalam 15 menit.', 429);
+}
+
 $row = db_fetch(
     'SELECT id, nama, username, password_hash, role FROM users WHERE username = ? AND status = ? LIMIT 1',
     [$username, 'Aktif'],
@@ -29,15 +33,18 @@ $row = db_fetch(
 );
 
 if (!$row || !password_verify($password, $row['password_hash'])) {
+    login_failed();
     api_error('Username atau password salah.', 401);
 }
 
-$_SESSION['user'] = [
-    'id' => (int) $row['id'],
-    'name' => $row['nama'],
-    'role' => $row['role'],
-    'username' => $row['username'],
-];
+    login_succeeded();
+
+    $_SESSION['user'] = [
+        'id' => (int) $row['id'],
+        'name' => $row['nama'],
+        'role' => $row['role'],
+        'username' => $row['username'],
+    ];
 $_SESSION['tahun_ajaran'] = $tahunAjaran;
 
 api_success([

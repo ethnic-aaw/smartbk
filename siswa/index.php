@@ -144,9 +144,10 @@ require_once __DIR__ . '/../includes/header.php';
                             <div class="row-actions">
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/siswa/detail.php?id=<?= (int) $s['id'] ?>" class="ghost-btn">Detail</a>
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/siswa/edit.php?id=<?= (int) $s['id'] ?>" class="link-btn link-edit">Edit</a>
-                                <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/siswa/hapus.php?id=<?= (int) $s['id'] ?>" data-confirm="Yakin ingin menghapus siswa <?= e($s['nama']) ?>? Semua riwayat pelanggarannya juga akan terhapus.">
-                                    <button type="submit" class="link-btn link-delete">Hapus</button>
-                                </form>
+<form method="post" action="<?= rtrim(APP_BASE, '/') ?>/siswa/hapus.php?id=<?= (int) $s['id'] ?>" data-confirm="Yakin ingin menghapus siswa <?= e($s['nama']) ?>? Semua riwayat pelanggarannya juga akan terhapus.">
+                                <?= csrf_field() ?>
+                                <button type="submit" class="link-btn link-delete">Hapus</button>
+                            </form>
                             </div>
                         </td>
                     </tr>

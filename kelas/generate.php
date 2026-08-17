@@ -108,6 +108,7 @@ require_once __DIR__ . '/../includes/header.php';
                 </p>
             </div>
             <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/kelas/generate_undo.php" data-confirm="Yakin ingin membatalkan generate tahun ajaran <?= e($logAktif['tahun_ajaran_baru']) ?>? Data siswa akan dikembalikan ke kondisi sebelum generate.">
+                <?= csrf_field() ?>
                 <input type="hidden" name="log_id" value="<?= (int) $logAktif['id'] ?>">
                 <button type="submit" class="danger-btn" style="padding:10px 16px;">↩ Batalkan / Undo</button>
             </form>
@@ -123,6 +124,7 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="card form-card">
         <h3 style="margin-top:0;">Form Generate</h3>
         <form method="post">
+        <?= csrf_field() ?>
             <div class="form-group">
                 <label>Tahun Ajaran Berjalan</label>
                 <input type="text" value="<?= e($tahunLama) ?>" disabled>

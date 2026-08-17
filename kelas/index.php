@@ -57,6 +57,7 @@ require_once __DIR__ . '/../includes/header.php';
                             <div class="row-actions">
                                 <a href="<?= rtrim(APP_BASE, '/') ?>/kelas/edit.php?id=<?= (int) $k['id'] ?>" class="link-btn link-edit">Edit</a>
                                 <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/kelas/hapus.php?id=<?= (int) $k['id'] ?>" data-confirm="Hapus kelas <?= e($k['nama_kelas']) ?>? Siswa dalam kelas tersebut akan menjadi tanpa kelas.">
+                                    <?= csrf_field() ?>
                                     <button type="submit" class="link-btn link-delete">Hapus</button>
                                 </form>
                             </div>

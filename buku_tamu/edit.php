@@ -75,6 +75,7 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 <div class="card form-card">
     <form method="post">
+        <?= csrf_field() ?>
         <div class="form-grid">
             <div class="form-group">
                 <label>Hari &amp; Tanggal</label>

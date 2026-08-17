@@ -117,6 +117,7 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 <div class="card form-card">
     <form method="post" enctype="multipart/form-data">
+        <?= csrf_field() ?>
         <div class="form-grid">
             <div class="form-group">
                 <label>Siswa</label>

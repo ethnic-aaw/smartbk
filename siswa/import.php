@@ -47,6 +47,7 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="card form-card">
         <h3 style="margin-top: 0;">📤 Step 2: Upload File</h3>
         <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/siswa/import_process.php" enctype="multipart/form-data">
+            <?= csrf_field() ?>
             <div class="form-group">
                 <label>Pilih File Excel / CSV</label>
                 <input type="file" name="csv_file" accept=".xls,.csv" required>

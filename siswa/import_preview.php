@@ -60,6 +60,7 @@ require_once __DIR__ . '/../includes/header.php';
 <!-- Confirm Import Form -->
 <div class="card" style="padding: 18px; margin-bottom: 16px; background: #f0fdf4; border: 1px solid #86efac;">
     <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/siswa/import_execute.php">
+        <?= csrf_field() ?>
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
                 <h3 style="margin: 0 0 4px; color: var(--accent);">✅ Siap Import <?= count($validData) ?> Siswa</h3>

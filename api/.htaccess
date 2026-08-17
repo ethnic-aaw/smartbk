@@ -1,10 +1,6 @@
-# Deny direct access to API index
+# Letakkan header CORS di api/index.php agar dinamis (same-origin only).
+# File ini hanya melarang akses langsung ke index.php api info.
 <Files "index.php">
     Order Allow,Deny
     Allow from all
 </Files>
-
-# Enable CORS (if needed for frontend)
-Header set Access-Control-Allow-Origin "*"
-Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-Header set Access-Control-Allow-Headers "Content-Type, Authorization"

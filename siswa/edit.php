@@ -134,6 +134,7 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 <div class="card form-card">
     <form method="post" enctype="multipart/form-data">
+        <?= csrf_field() ?>
         <div class="tabs">
             <div class="tab-nav">
                 <button type="button" class="tab-btn active" data-tab="biodata">Biodata Siswa</button>

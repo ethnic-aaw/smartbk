@@ -112,6 +112,7 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="row-actions" style="margin-bottom:18px;">
             <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/download.php?id=<?= (int) $rec['id'] ?>" class="link-btn link-edit">Download</a>
             <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/bukti.php?id=<?= (int) $rec['id'] ?>" data-confirm="Hapus barang bukti ini?">
+                <?= csrf_field() ?>
                 <input type="hidden" name="hapus" value="1">
                 <button type="submit" class="link-btn link-delete">Hapus Bukti</button>
             </form>
@@ -122,6 +123,7 @@ require_once __DIR__ . '/../includes/header.php';
 
     <label>Unggah Barang Bukti (foto / dokumen)</label>
     <form method="post" enctype="multipart/form-data" action="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/bukti.php?id=<?= (int) $rec['id'] ?>" style="margin-top:8px;">
+        <?= csrf_field() ?>
         <div class="form-group" style="margin-bottom:0;">
             <input type="file" name="bukti" accept=".jpg,.jpeg,.png,.webp,.pdf">
             <small style="color: var(--text-muted);">JPG, PNG, atau PDF - maksimal 2MB - 1 file. File lama otomatis diganti.</small>

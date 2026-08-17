@@ -103,3 +103,23 @@ function nama_kelas_naik(string $nama, string $tingkat, string $tingkatBaru): st
     }
     return $nama;
 }
+
+/**
+ * Badge untuk approval status
+ */
+function approval_badge(string $status): string
+{
+    $class = match ($status) {
+        'pending' => 'badge-warning',
+        'approved' => 'badge-good',
+        'rejected' => 'badge-danger',
+        default => 'badge-good',
+    };
+    $label = match ($status) {
+        'pending' => 'Menunggu',
+        'approved' => 'Disetujui',
+        'rejected' => 'Ditolak',
+        default => ucfirst($status),
+    };
+    return '<span class="badge ' . $class . '">' . $label . '</span>';
+}
