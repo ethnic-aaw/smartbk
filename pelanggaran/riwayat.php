@@ -7,6 +7,7 @@ $activeMenu = 'pelanggaran_riwayat';
 
 $search = trim($_GET['q'] ?? '');
 $kelasFilter = (int) ($_GET['kelas'] ?? 0);
+$komponenFilter = trim($_GET['komponen'] ?? '');
 $tahunAjaran = current_tahun_ajaran();
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = 20;
@@ -35,6 +36,10 @@ if ($search !== '') {
 if ($kelasFilter > 0 && can_see_all_data()) {
     $where[] = 's.kelas_id = ?';
     $params[] = $kelasFilter;
+}
+if ($komponenFilter !== '') {
+    $where[] = 'j.komponen = ?';
+    $params[] = $komponenFilter;
 }
 if ($tahunAjaran !== '') {
     $where[] = 'k.tahun_ajaran = ?';
@@ -103,6 +108,12 @@ require_once __DIR__ . '/../includes/header.php';
             <?php endforeach; ?>
         </select>
         <?php endif; ?>
+        <select name="komponen">
+            <option value="">Semua Komponen</option>
+            <?php foreach (['Kehadiran', 'Kerapian', 'Ketertiban', 'Kekerasan', 'Narkoba', 'Lainnya'] as $komp): ?>
+                <option value="<?= $komp ?>" <?= $komponenFilter === $komp ? 'selected' : '' ?>><?= $komp ?></option>
+            <?php endforeach; ?>
+        </select>
         <button type="submit" class="secondary-btn">Filter</button>
         <a href="<?= rtrim(APP_BASE, '/') ?>/pelanggaran/riwayat.php" class="ghost-btn">Reset</a>
     </form>

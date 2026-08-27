@@ -148,52 +148,6 @@ $ringkasanKomponen = db_fetch(
     $ringkasanParams
 ) ?: [];
 
-$chart = ['labels' => [], 'data' => []];
-$mon = [
-    '1' => 'Jan', '2' => 'Feb', '3' => 'Mar', '4' => 'Apr', '5' => 'Mei', '6' => 'Jun',
-    '7' => 'Jul', '8' => 'Ags', '9' => 'Sep', '10' => 'Okt', '11' => 'Nov', '12' => 'Des',
-];
-
-// Periode grafik: 6 bulan terakhir dari tahun ajaran terpilih (berakhir Juni)
-$tahunAkhirAjaran = (int) substr($tahunAjaran, 5, 4);
-$akhirPeriode = new DateTime($tahunAkhirAjaran . '-06-30');
-$mulaiPeriode = clone $akhirPeriode;
-$mulaiPeriode->modify('-5 months');
-$mulaiPeriode->modify('first day of this month');
-$mulaiPeriode->setTime(0, 0);
-
-if ($userKelasId) {
-    $chartRows = db_fetch(
-        'SELECT MONTH(p.tanggal) AS m, YEAR(p.tanggal) AS y, COUNT(*) AS c
-         FROM pelanggaran_siswa p
-         JOIN siswa s ON s.id = p.siswa_id
-         WHERE s.kelas_id = ? AND p.tanggal BETWEEN ? AND ?
-         GROUP BY YEAR(p.tanggal), MONTH(p.tanggal)
-         ORDER BY y, m',
-        [$userKelasId, $mulaiPeriode->format('Y-m-d'), $akhirPeriode->format('Y-m-d')]
-    );
-} else {
-    $chartRows = db_fetch(
-        'SELECT MONTH(tanggal) AS m, YEAR(tanggal) AS y, COUNT(*) AS c
-         FROM pelanggaran_siswa
-         WHERE tanggal BETWEEN ? AND ?
-         GROUP BY YEAR(tanggal), MONTH(tanggal)
-         ORDER BY y, m',
-        [$mulaiPeriode->format('Y-m-d'), $akhirPeriode->format('Y-m-d')]
-    );
-}
-$map = [];
-foreach (($chartRows ?: []) as $r) {
-    $map[$r['y'] . '-' . $r['m']] = (int) $r['c'];
-}
-$cursor = $mulaiPeriode;
-for ($i = 0; $i < 6; $i++) {
-    $k = $cursor->format('Y') . '-' . (int) $cursor->format('m');
-    $chart['labels'][] = $mon[(string) (int) $cursor->format('m')];
-    $chart['data'][] = $map[$k] ?? 0;
-    $cursor->modify('+1 month');
-}
-
 require_once __DIR__ . '/includes/header.php';
 ?>
 <div class="page-header">
@@ -224,10 +178,37 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<div class="grid" style="grid-template-columns: 1.3fr 0.7fr; margin-top: 16px;">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.dashboard-insight { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:16px; }
+.insight-card { background:linear-gradient(135deg,#eff6ff,#ffffff); border:1px solid var(--border); border-radius:16px; padding:14px; }
+.insight-card strong { display:block; font-size:13px; color:var(--text-muted); margin-bottom:6px; }
+.insight-card span { font-size:18px; font-weight:800; color:var(--text); }
+.chart-card canvas { width:100% !important; height:320px !important; display:block; }
+@media (max-width:900px){ .dashboard-insight,.dashboard-grid { grid-template-columns:1fr !important; } }
+</style>
+
+<div class="dashboard-insight">
+    <div class="insight-card"><strong>Risiko bulan ini</strong><span id="insightRisk">Memuat...</span></div>
+    <div class="insight-card"><strong>Fokus pembinaan</strong><span id="insightFocus">Memuat...</span></div>
+    <div class="insight-card"><strong>Prioritas kepala sekolah</strong><span id="insightPolicy">Memuat...</span></div>
+</div>
+
+<div class="grid dashboard-grid" style="grid-template-columns: 1.25fr 0.75fr; margin-top: 16px;">
     <div class="card chart-card">
-        <h3 style="margin-top:0;">Grafik Pelanggaran 6 Bulan Terakhir</h3>
-        <canvas id="violationsChart" height="180" data-chart='<?= e(json_encode($chart)) ?>'></canvas>
+        <h3 style="margin-top:0;">Tren Pelanggaran 6 Bulan</h3>
+        <canvas id="trendChart" height="180"></canvas>
+    </div>
+    <div class="card chart-card">
+        <h3 style="margin-top:0;">Kategori Dominan</h3>
+        <canvas id="categoryChart" height="180"></canvas>
+    </div>
+</div>
+
+<div class="grid dashboard-grid" style="grid-template-columns: 1.25fr 0.75fr; margin-top: 16px;">
+    <div class="card chart-card">
+        <h3 style="margin-top:0;">Top 5 Siswa Risiko Tinggi</h3>
+        <canvas id="topStudentChart" height="180"></canvas>
     </div>
     <div class="card table-card">
         <h3 style="margin-top:0;">Top 10 Siswa Poin Tertinggi</h3>
@@ -273,30 +254,84 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<div class="grid" style="grid-template-columns: 1.3fr 0.7fr; margin-top: 16px;">
-    <div class="card chart-card">
-        <h3 style="margin-top:0;">Pelanggaran per Komponen</h3>
-        <?php if (!$ringkasanKomponen): ?>
-            <p style="color:var(--text-muted);">Belum ada data pelanggaran.</p>
-        <?php else:
-            $maxJumlah = max(array_column($ringkasanKomponen, 'jumlah'));
-        ?>
-            <div class="bar-chart">
-                <?php foreach ($ringkasanKomponen as $rk):
-                    $pct = $maxJumlah > 0 ? (int) round($rk['jumlah'] / $maxJumlah * 100) : 0;
-                ?>
-                    <div class="bar-row">
-                        <div class="bar-label" title="<?= e($rk['komponen']) ?>"><?= e($rk['komponen']) ?></div>
-                        <div class="bar-track"><div class="bar-fill" style="width: <?= $pct ?>%;"></div></div>
-                        <div class="bar-value">
-                            <span class="badge badge-warning"><?= (int) $rk['jumlah'] ?></span>
-                            <span class="bar-poin"><?= (int) $rk['total_poin'] ?> poin</span>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </div>
+<div class="card chart-card" style="margin-top: 16px;">
+    <h3 style="margin-top:0;">Pelanggaran per Komponen</h3>
+    <?php if (!$ringkasanKomponen): ?>
+        <p style="color:var(--text-muted);">Belum ada data pelanggaran.</p>
+    <?php else: ?>
+        <canvas id="componentChart" height="320"></canvas>
+<script>
+            const componentData = <?= json_encode(array_map(fn($r) => [
+                'komponen' => $r['komponen'],
+                'jumlah' => (int) $r['jumlah'],
+                'total_poin' => (int) $r['total_poin'],
+            ], $ringkasanKomponen)) ?>;
+            const componentColors = ['#2563eb', '#f97316', '#14b8a6', '#dc2626', '#8b5cf6', '#eab308', '#64748b'];
+            const componentCanvas = document.getElementById('componentChart');
+            if (componentCanvas) new Chart(componentCanvas, {
+                type: 'bar',
+                data: {
+                    labels: componentData.map(x => x.komponen.length > 24 ? `${x.komponen.slice(0, 24)}…` : x.komponen),
+                    datasets: [{
+                        label: 'Jumlah kasus',
+                        data: componentData.map(x => x.jumlah),
+                        backgroundColor: componentColors,
+                        borderRadius: 8,
+                        maxBarThickness: 60,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    animation: { duration: 900, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => `${ctx.parsed.y} kasus • ${componentData[ctx.dataIndex].total_poin} poin`,
+                            },
+                        },
+                    },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Kasus' } },
+                        y: { ticks: { autoSkip: false, font: { size: 12 } } },
+                    },
+                    onClick: (e, items) => {
+                        if (items.length) {
+                            const komponen = componentData[items[0].index].komponen;
+                            window.location = '<?= rtrim(APP_BASE, '/') ?>/pelanggaran/riwayat.php?komponen=' + encodeURIComponent(komponen);
+                        }
+                    },
+                },
+            });
+        </script>
+    <?php endif; ?>
 </div>
 
+<script>
+(async () => {
+    const response = await fetch('<?= rtrim(APP_BASE, '/') ?>/api/dashboard/stats.php', { credentials: 'same-origin' });
+    const data = await response.json();
+    if (data.error) return;
+    const colors = ['#2563eb', '#f97316', '#14b8a6', '#dc2626', '#8b5cf6', '#eab308'];
+    const common = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 900, easing: 'easeOutQuart' },
+        plugins: {
+            legend: { labels: { usePointStyle: true, font: { size: 14, weight: '700' } } },
+            tooltip: { bodyFont: { size: 14 }, titleFont: { size: 15, weight: '700' }, padding: 12 }
+        }
+    };
+    new Chart(document.getElementById('trendChart'), { type:'line', data:{ labels:data.trenBulanan.labels, datasets:[{label:'Kasus',data:data.trenBulanan.data,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.14)',fill:true,tension:.4,pointRadius:5,pointHoverRadius:8}] }, options:{...common, scales:{y:{beginAtZero:true,ticks:{precision:0,font:{size:13,weight:'600'}},title:{display:true,text:'Kasus',font:{size:14,weight:'700'}}},x:{ticks:{font:{size:13,weight:'600'}}}}} });
+    new Chart(document.getElementById('categoryChart'), { type:'doughnut', data:{ labels:data.distribusiPerKategori.map(x=>x.kategori), datasets:[{data:data.distribusiPerKategori.map(x=>x.jumlah),backgroundColor:colors,borderWidth:3,borderColor:'#fff',hoverOffset:10}] }, options:{...common,cutout:'62%', plugins:{...common.plugins,legend:{position:'bottom',labels:{usePointStyle:true,font:{size:13,weight:'700'}}}}} });
+    new Chart(document.getElementById('topStudentChart'), { type:'bar', data:{ labels:data.topSiswa.map(x=>x.nama.length>22?`${x.nama.slice(0,22)}…`:x.nama), datasets:[{label:'Total poin',data:data.topSiswa.map(x=>x.total_poin),backgroundColor:colors,borderRadius:8}] }, options:{...common,indexAxis:'y',plugins:{...common.plugins,legend:{display:false},tooltip:{callbacks:{title:items=>data.topSiswa[items[0].dataIndex].nama}}},scales:{x:{beginAtZero:true,ticks:{precision:0,font:{size:13,weight:'600'}},title:{display:true,text:'Poin',font:{size:14,weight:'700'}}},y:{ticks:{autoSkip:false,font:{size:12,weight:'600'}}}}} });
+    const current = data.pelanggaran.bulanIni, previous = data.pelanggaran.bulanLalu;
+    const focus = data.distribusiPerKategori[0];
+    document.getElementById('insightRisk').textContent = current > previous ? `Naik: ${current} kasus` : `Terkendali: ${current} kasus`;
+    document.getElementById('insightFocus').textContent = focus ? `${focus.kategori} (${focus.jumlah} kasus)` : 'Belum ada data';
+    document.getElementById('insightPolicy').textContent = current > previous ? 'Tambah intervensi BK' : 'Pertahankan program';
+})().catch(() => {});
+</script>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

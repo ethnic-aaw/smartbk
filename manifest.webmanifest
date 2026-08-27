@@ -1,0 +1,16 @@
+{
+  "name": "Smart BK",
+  "short_name": "Smart BK",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%232563eb'/%3E%3Cpath fill='white' d='M56 48h80v96H56z'/%3E%3Cpath fill='%232563eb' d='M72 72h48v12H72zm0 24h48v12H72zm0 24h32v12H72z'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

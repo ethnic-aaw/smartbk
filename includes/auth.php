@@ -8,19 +8,6 @@ if (empty($_SESSION['user']) || empty($_SESSION['tahun_ajaran'])) {
     exit;
 }
 
-// Check approval status for OAuth users
-if (!empty($_SESSION['user']['id'])) {
-    $userId = $_SESSION['user']['id'];
-    $user = db_fetch('SELECT approval_status FROM users WHERE id = ? LIMIT 1', [$userId], 'row');
-    if ($user && in_array($user['approval_status'], ['pending', 'rejected'], true)) {
-        // Clear session and redirect to pending page
-        session_unset();
-        session_destroy();
-        header('Location: ' . APP_BASE . 'pending_approval.php');
-        exit;
-    }
-}
-
 // CSRF guard for every state-changing request handled by protected pages.
 if (in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {
     csrf_check_or_die();

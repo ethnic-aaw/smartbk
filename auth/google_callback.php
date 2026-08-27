@@ -4,6 +4,8 @@
  * Menerima callback dari Google setelah user login
  */
 
+
+
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -54,81 +56,91 @@ try {
         exit;
     }
     
-    // 7. Cek apakah user sudah ada di database
+    // 7. Cek user berdasarkan email
     $dbUser = db_fetch(
-        'SELECT * FROM users WHERE google_id = ? OR email = ? LIMIT 1',
-        [$userInfo['google_id'], $userInfo['email']],
+        'SELECT id, nama, username, role, kelas_id, status, google_id, approval_status FROM users WHERE email = ? LIMIT 1',
+        [$userInfo['email']],
         'row'
     );
-    
-    if ($dbUser) {
-        // User sudah ada - update google_id jika belum ada
-        if (empty($dbUser['google_id'])) {
-            db_query(
-                'UPDATE users SET google_id = ?, email_verified_at = NOW() WHERE id = ?',
-                [$userInfo['google_id'], $dbUser['id']]
-            );
-        }
-        
-        // Cek approval status
-        if ($dbUser['approval_status'] === 'rejected') {
-            set_flash('error', 'Akun Anda ditolak. Hubungi administrator.');
-            header('Location: ' . APP_BASE . 'login.php');
-            exit;
-        }
-        
-        if ($dbUser['approval_status'] === 'pending') {
-            // Simpan data OAuth ke session untuk ditampilkan di halaman pending
-            $_SESSION['pending_user'] = [
-                'id' => $dbUser['id'],
-                'name' => $dbUser['nama'],
-                'email' => $dbUser['email'],
-                'role' => $dbUser['role'],
-            ];
-            header('Location: ' . APP_BASE . 'pending_approval.php');
-            exit;
-        }
-        
-        // Approved - login
-        login_succeeded();
-        $_SESSION['user'] = [
-            'id' => (int) $dbUser['id'],
-            'name' => $dbUser['nama'],
-            'role' => $dbUser['role'],
-            'username' => $dbUser['username'],
-            'kelas_id' => $dbUser['kelas_id'] ? (int) $dbUser['kelas_id'] : null,
-        ];
-        
-        // Update last_login_at
-        db_query('UPDATE users SET last_login_at = NOW() WHERE id = ?', [$dbUser['id']]);
-        
-        // Redirect ke dashboard (tahun ajaran akan dipilih nanti atau dari session)
-        $yearList = db_fetch('SELECT DISTINCT tahun_ajaran FROM kelas WHERE tahun_ajaran IS NOT NULL AND tahun_ajaran <> "" ORDER BY tahun_ajaran DESC');
-        $yearOptions = $yearList ? array_column($yearList, 'tahun_ajaran') : [];
-        if ($yearOptions) {
-            $_SESSION['tahun_ajaran'] = $yearOptions[0]; // default ke tahun terbaru
-        }
-        
-        header('Location: ' . APP_BASE . 'dashboard.php');
-        exit;
-        
-    } else {
-        // User baru - simpan data OAuth ke session, redirect ke register.php
-        $_SESSION['oauth_data'] = [
-            'google_id' => $userInfo['google_id'],
-            'email' => $userInfo['email'],
-            'name' => $userInfo['name'],
-            'given_name' => $userInfo['given_name'] ?? '',
-            'family_name' => $userInfo['family_name'] ?? '',
-            'picture' => $userInfo['picture'] ?? '',
-        ];
-        
-        header('Location: ' . APP_BASE . 'register.php');
+
+    if (!$dbUser) {
+        $nama = $userInfo['name'] ?? $userInfo['email'];
+        $role = preg_match('/@guru\.smk\.belajar\.id$/i', $userInfo['email']) ? 'Guru BK' : 'Siswa';
+        $approvalStatus = 'pending';
+
+        $passwordHash = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+        db_query(
+            'INSERT INTO users (nama, username, email, password_hash, google_id, role, status, approval_status, email_verified_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+            [
+                $nama,
+                $userInfo['email'],
+                $userInfo['email'],
+                $passwordHash,
+                $userInfo['google_id'],
+                $role,
+                'Aktif',
+                $approvalStatus,
+            ]
+        );
+
+        $dbUser = db_fetch(
+            'SELECT id, nama, username, role, kelas_id, status, google_id, approval_status FROM users WHERE email = ? LIMIT 1',
+            [$userInfo['email']],
+            'row'
+        );
+
+        set_flash('error', 'Akun baru berhasil dibuat. Menunggu persetujuan administrator.');
+        header('Location: ' . APP_BASE . 'login.php');
         exit;
     }
+
+    if (($dbUser['status'] ?? 'Aktif') !== 'Aktif') {
+        set_flash('error', 'Akun ini tidak aktif. Hubungi administrator.');
+        header('Location: ' . APP_BASE . 'login.php');
+        exit;
+    }
+
+    $approval = $dbUser['approval_status'] ?? 'approved';
+    if ($approval === 'rejected') {
+        set_flash('error', 'Akun Anda ditolak. Hubungi administrator.');
+        header('Location: ' . APP_BASE . 'login.php');
+        exit;
+    }
+    if ($approval === 'pending') {
+        set_flash('error', 'Akun Anda menunggu persetujuan administrator.');
+        header('Location: ' . APP_BASE . 'login.php');
+        exit;
+    }
+
+    if (empty($dbUser['google_id'])) {
+        db_query(
+            'UPDATE users SET google_id = ?, email_verified_at = NOW() WHERE id = ?',
+            [$userInfo['google_id'], $dbUser['id']]
+        );
+    }
+
+    login_succeeded();
+    $_SESSION['user'] = [
+        'id' => (int) $dbUser['id'],
+        'name' => $dbUser['nama'],
+        'role' => $dbUser['role'],
+        'username' => $dbUser['username'],
+        'kelas_id' => $dbUser['kelas_id'] ? (int) $dbUser['kelas_id'] : null,
+    ];
+
+    db_query('UPDATE users SET last_login_at = NOW(), email_verified_at = NOW() WHERE id = ?', [$dbUser['id']]);
+
+    $yearList = db_fetch('SELECT DISTINCT tahun_ajaran FROM kelas WHERE tahun_ajaran IS NOT NULL AND tahun_ajaran <> "" ORDER BY tahun_ajaran DESC');
+    $yearOptions = $yearList ? array_column($yearList, 'tahun_ajaran') : [];
+    if ($yearOptions) {
+        $_SESSION['tahun_ajaran'] = $yearOptions[0];
+    }
+
+    header('Location: ' . APP_BASE . 'dashboard.php');
+    exit;
     
-} catch (Throwable $e) {
-    error_log('Google OAuth Error: ' . $e->getMessage());
+    } catch (Throwable $e) {
+    error_log('Google OAuth Error: ' . $e->getMessage() . ' Trace: ' . $e->getTraceAsString());
     set_flash('error', 'Gagal login dengan Google: ' . $e->getMessage());
     header('Location: ' . APP_BASE . 'login.php');
     exit;

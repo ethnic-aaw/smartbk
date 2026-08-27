@@ -163,7 +163,22 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 }
 @media (max-width: 760px) {
     .app-shell { flex-direction: column; }
-    .sidebar { width: 100%; }
-    .topbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .sidebar { width: 100%; padding: 16px; gap: 16px; }
+    .brand h1 { font-size: 16px; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px; }
+    .topbar-actions { width: 100%; flex-direction: column; align-items: stretch; }
+    .user-pill { width: 100%; justify-content: flex-start; border-radius: 16px; }
+    .ghost-btn { width: 100%; text-align: center; }
+    .page-content { padding: 16px; }
     .grid-4 { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 1fr; gap: 6px; }
+    .bar-label { text-align: left; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar input[type=text], .toolbar select { width: 100%; max-width: none; }
+    .form-actions { flex-direction: column; }
+    .form-actions .primary-btn, .form-actions .secondary-btn, .form-actions .danger-btn, .form-actions .ghost-btn { width: 100%; }
+    .login-page { padding: 16px; }
+    .login-card { padding: 20px; border-radius: 14px; }
+    .login-card h1 { font-size: 22px; }
+    .nav-item { padding: 14px; }
 }

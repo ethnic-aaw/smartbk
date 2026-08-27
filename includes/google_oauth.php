@@ -25,8 +25,13 @@ class GoogleOAuth
                 . '/auth/google_callback.php';
 
         $this->client = new Google\Client();
-        $this->client->setClientId(getenv('GOOGLE_CLIENT_ID') ?? '');
-        $this->client->setClientSecret(getenv('GOOGLE_CLIENT_SECRET') ?? '');
+        $clientId = getenv('GOOGLE_CLIENT_ID') ?? '';
+        $clientSecret = getenv('GOOGLE_CLIENT_SECRET') ?? '';
+        if (empty($clientId) || empty($clientSecret)) {
+            error_log('Google OAuth credentials are not configured.');
+        }
+        $this->client->setClientId($clientId);
+        $this->client->setClientSecret($clientSecret);
         $this->client->setRedirectUri($this->redirectUri);
         $this->client->setScopes($this->scopes);
         $this->client->setAccessType('offline');
@@ -41,7 +46,8 @@ class GoogleOAuth
     {
         $state = bin2hex(random_bytes(32));
         $_SESSION['oauth_state'] = $state;
-        return $this->client->createAuthUrl() . '&state=' . $state;
+        $this->client->setState($state);
+        return $this->client->createAuthUrl();
     }
 
     /**
@@ -95,7 +101,7 @@ class GoogleOAuth
      */
     public function validateDomain(string $email): bool
     {
-        return str_ends_with(strtolower($email), '@belajar.id');
+        return (bool) preg_match('/@(belajar\.id|guru\.smk\.belajar\.id)$/i', trim($email));
     }
 
     /**

@@ -12,6 +12,10 @@ $googleAuthUrl = $oauth->getAuthUrl();
 $yearList = db_fetch('SELECT DISTINCT tahun_ajaran FROM kelas WHERE tahun_ajaran IS NOT NULL AND tahun_ajaran <> "" ORDER BY tahun_ajaran DESC');
 $yearList = $yearList ?: [];
 $yearOptions = array_column($yearList, 'tahun_ajaran');
+if (!$yearOptions) {
+    $year = (int) date('Y');
+    $yearOptions = [date('n') >= 7 ? $year . '/' . ($year + 1) : ($year - 1) . '/' . $year];
+}
 
 $message = '';
 if (is_login_locked()) {
@@ -80,6 +84,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="<?= rtrim(APP_BASE, '/') ?>/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="<?= rtrim(APP_BASE, '/') ?>/assets/icons/icon-192.png">
+    <link rel="manifest" href="<?= rtrim(APP_BASE, '/') ?>/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="<?= rtrim(APP_BASE, '/') ?>/assets/css/style.css">
     <style>
         .divider {
@@ -139,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-<body>
+<body data-base="<?= rtrim(APP_BASE, '/') ?>">
 <div class="login-page">
     <div class="login-card">
         <div class="login-logo">SB</div>
@@ -149,10 +162,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($message): ?>
             <div class="alert error"><?= htmlspecialchars($message) ?></div>
         <?php endif; ?>
-        <?php if (!$yearOptions): ?>
-            <div class="alert error">Belum ada data tahun ajaran. Pastikan database sudah di-import dari <code>sql/smart_bk.sql</code> (berisi tahun ajaran 2024/2025).</div>
-        <?php endif; ?>
-        
         <!-- Google OAuth Button -->
         <a href="<?= htmlspecialchars($googleAuthUrl) ?>" class="google-btn" style="text-decoration: none;">
             <svg viewBox="0 0 24 24">
@@ -201,5 +210,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('<?= rtrim(APP_BASE, '/') ?>/sw.js').catch(() => {});
+    }
+</script>
 </body>
 </html>

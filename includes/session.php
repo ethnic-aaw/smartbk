@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
         'lifetime' => 0,
         'path'       => '/',
         'domain'     => '',
-        'secure'     => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'secure'     => false,
         'httponly'   => true,
         'samesite'   => 'Lax',
     ]);

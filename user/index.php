@@ -114,6 +114,20 @@ require_once __DIR__ . '/../includes/header.php';
                             <td>
                                 <div class="row-actions">
                                     <a href="<?= rtrim(APP_BASE, '/') ?>/user/edit.php?id=<?= (int) $u['id'] ?>" class="link-btn link-edit">Edit / Reset</a>
+                                    <?php if (($u['approval_status'] ?? 'approved') === 'pending'): ?>
+                                        <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/user/approval.php" style="display:inline;" onsubmit="return confirm('Yakin menyetujui user <?= e($u['nama']) ?>?');">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="action" value="approve">
+                                            <input type="hidden" name="user_id" value="<?= (int) $u['id'] ?>">
+                                            <button type="submit" class="link-btn link-edit">✓ Setujui</button>
+                                        </form>
+                                        <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/user/approval.php" style="display:inline;" onsubmit="return confirm('Yakin menolak user <?= e($u['nama']) ?>?');">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="action" value="reject">
+                                            <input type="hidden" name="user_id" value="<?= (int) $u['id'] ?>">
+                                            <button type="submit" class="link-btn link-delete">✗ Tolak</button>
+                                        </form>
+                                    <?php endif; ?>
                                     <form method="post" action="<?= rtrim(APP_BASE, '/') ?>/user/hapus.php?id=<?= (int) $u['id'] ?>" data-confirm="Hapus user <?= e($u['nama']) ?>?">
                                         <?= csrf_field() ?>
                                         <button type="submit" class="link-btn link-delete">Hapus</button>
