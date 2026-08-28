@@ -70,7 +70,7 @@ if (!isset($activeMenu)) {
         </nav>
 
         <div class="sidebar-footer">
-            <a href="<?= rtrim(APP_BASE, '/') ?>/logout.php" class="nav-item logout-item">
+            <a href="<?= rtrim(APP_BASE, '/') ?>/logout" class="nav-item logout-item">
                 <span class="nav-icon"><?= svg_icon('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>') ?></span>
                 <span>Logout</span>
             </a>
@@ -91,7 +91,7 @@ if (!isset($activeMenu)) {
                         <span><?= htmlspecialchars($_SESSION['user']['role']) ?><?php if (!empty($_SESSION['tahun_ajaran'])): ?> • <?= htmlspecialchars($_SESSION['tahun_ajaran']) ?><?php endif; ?></span>
                     </div>
                 </div>
-                <a href="<?= rtrim(APP_BASE, '/') ?>/logout.php" class="ghost-btn">Logout</a>
+                <a href="<?= rtrim(APP_BASE, '/') ?>/logout" class="ghost-btn">Logout</a>
             </div>
         </header>
 

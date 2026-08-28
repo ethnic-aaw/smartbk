@@ -1,8 +1,21 @@
 <?php
 require_once __DIR__ . '/includes/session.php';
-session_unset();
+require_once __DIR__ . '/config/app.php';
+
+$_SESSION = [];
+
+if (ini_get('session.use_cookies')) {
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 42000,
+        $params['path'], $params['domain'],
+        $params['secure'], $params['httponly']
+    );
+}
+
 session_destroy();
 
-require_once __DIR__ . '/config/app.php';
-header('Location: ' . APP_BASE . 'login.php');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+header('Location: ' . rtrim(APP_BASE, '/') . '/login');
 exit;
