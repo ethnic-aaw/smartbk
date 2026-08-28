@@ -7,27 +7,27 @@ import type { StatCardData } from '@/types'
 const colorMap = {
   primary: {
     icon: 'bg-orbit-primary/15 text-orbit-primary-light',
-    chart: '#7C3AED',
-    gradient: 'rgba(124, 58, 237, 0.15)',
-    positive: 'text-violet-400',
+    chart: '#2563EB',
+    gradient: 'rgba(37, 99, 235, 0.15)',
+    positive: 'text-blue-500',
   },
   accent: {
     icon: 'bg-orbit-accent/15 text-orbit-accent-light',
-    chart: '#06B6D4',
-    gradient: 'rgba(6, 182, 212, 0.15)',
-    positive: 'text-cyan-400',
+    chart: '#10B981',
+    gradient: 'rgba(16, 185, 129, 0.15)',
+    positive: 'text-emerald-500',
   },
   success: {
     icon: 'bg-orbit-success/15 text-emerald-400',
     chart: '#10B981',
     gradient: 'rgba(16, 185, 129, 0.15)',
-    positive: 'text-emerald-400',
+    positive: 'text-emerald-500',
   },
   warning: {
     icon: 'bg-orbit-warning/15 text-amber-400',
     chart: '#F59E0B',
     gradient: 'rgba(245, 158, 11, 0.15)',
-    positive: 'text-amber-400',
+    positive: 'text-amber-500',
   },
 }
 
