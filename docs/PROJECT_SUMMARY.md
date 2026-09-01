@@ -2,7 +2,7 @@
 
 ## ✅ Project Summary
 
-**Project:** Smart BK - Sistem Informasi Bimbingan & Konseling Sekolah  
+**Project:** Smart BK - Kesiswaan Sekolah  
 **Version:** 1.0.0  
 **Status:** ✅ **PRODUCTION READY**  
 **Completed:** 2026-08-05  
@@ -506,4 +506,4 @@ smartbk/
 
 ---
 
-*Smart BK - Digitalisasi Bimbingan Konseling Sekolah* 🎓
+*Smart BK - Sistem Kesiswaan Sekolah* 🎓

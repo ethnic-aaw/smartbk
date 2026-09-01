@@ -1,51 +1,87 @@
 import {
   LayoutDashboard,
-  MessageSquare,
   Users,
-  CreditCard,
-  Puzzle,
+  GraduationCap,
+  AlertTriangle,
+  BookOpen,
+  ClipboardList,
+  CalendarClock,
   Settings,
   HelpCircle,
-  BarChart3,
+  UserCog,
+  School,
 } from 'lucide-react'
 import type { NavSection } from '@/types'
 
 export const navigation: NavSection[] = [
   {
-    title: 'Overview',
+    title: 'Menu Utama',
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-      { label: 'Analytics', icon: BarChart3, href: '/dashboard' },
     ],
   },
   {
-    title: 'Apps',
+    title: 'Data Master',
     items: [
-      { label: 'AI Chat', icon: MessageSquare, href: '/ai/chat', badge: 'New' },
       {
-        label: 'CRM',
-        icon: Users,
+        label: 'Siswa',
+        icon: GraduationCap,
         children: [
-          { label: 'Contacts', href: '/crm/contacts' },
-          { label: 'Pipeline', href: '/crm/contacts' },
+          { label: 'Daftar Siswa', href: '/siswa' },
+          { label: 'Tambah Siswa', href: '/siswa/tambah' },
+          { label: 'Import Siswa', href: '/siswa/import' },
         ],
       },
       {
-        label: 'Billing',
-        icon: CreditCard,
+        label: 'Kelas',
+        icon: School,
         children: [
-          { label: 'Overview', href: '/billing' },
-          { label: 'Invoices', href: '/billing' },
+          { label: 'Daftar Kelas', href: '/kelas' },
+          { label: 'Generate Tahun Ajaran', href: '/kelas/generate' },
+        ],
+      },
+      {
+        label: 'User',
+        icon: UserCog,
+        children: [
+          { label: 'Daftar User', href: '/user' },
+          { label: 'Approval', href: '/user/approval' },
         ],
       },
     ],
   },
   {
-    title: 'Design System',
+    title: 'Aktivitas',
     items: [
-      { label: 'Components', icon: Puzzle, href: '/components' },
-      { label: 'Settings', icon: Settings, href: '/settings' },
-      { label: 'Help', icon: HelpCircle, href: '/help' },
+      {
+        label: 'Pelanggaran',
+        icon: AlertTriangle,
+        children: [
+          { label: 'Riwayat Pelanggaran', href: '/pelanggaran/riwayat' },
+          { label: 'Catat Pelanggaran', href: '/pelanggaran/tambah' },
+          { label: 'Master Pelanggaran', href: '/pelanggaran/master' },
+        ],
+      },
+      {
+        label: 'Konsultasi',
+        icon: BookOpen,
+        children: [
+          { label: 'Daftar Konsultasi', href: '/konsultasi' },
+          { label: 'Konsultasi Baru', href: '/konsultasi/tambah' },
+        ],
+      },
+      {
+        label: 'Buku Tamu',
+        icon: ClipboardList,
+        href: '/buku_tamu',
+      },
+    ],
+  },
+  {
+    title: 'Sistem',
+    items: [
+      { label: 'Pengaturan', icon: Settings, href: '/settings' },
+      { label: 'Bantuan', icon: HelpCircle, href: '/help' },
     ],
   },
 ]

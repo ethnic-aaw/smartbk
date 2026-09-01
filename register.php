@@ -194,7 +194,7 @@ require_once __DIR__ . '/includes/header.php';
             <label>Peran / Role <span style="color:red;">*</span></label>
             <select name="role" id="role-select" class="<?= isset($errors['role']) ? 'input-invalid' : '' ?>" required>
                 <option value="">-- Pilih Peran --</option>
-                <option value="Guru BK" <?= $old['role'] === 'Guru BK' ? 'selected' : '' ?>>Guru BK (Bimbingan Konseling)</option>
+                <option value="Guru BK" <?= $old['role'] === 'Guru BK' ? 'selected' : '' ?>>Guru BK</option>
                 <option value="Wali Kelas" <?= $old['role'] === 'Wali Kelas' ? 'selected' : '' ?>>Wali Kelas</option>
                 <option value="Guru" <?= $old['role'] === 'Guru' ? 'selected' : '' ?>>Guru Mata Pelajaran</option>
                 <option value="Siswa" <?= $old['role'] === 'Siswa' ? 'selected' : '' ?>>Siswa</option>

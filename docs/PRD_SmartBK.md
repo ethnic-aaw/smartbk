@@ -1,5 +1,5 @@
 # PRD — Smart BK
-**Sistem Informasi Bimbingan & Konseling Sekolah**
+**Sistem Kesiswaan Sekolah**
 Version 1.0 · Stack: PHP Native + MySQL · Deploy: Dokploy
 
 ---
@@ -21,7 +21,7 @@ Smart BK hadir untuk mendigitalisasi proses pencatatan, pemantauan, dan pelapora
 | Role | Deskripsi | Hak Akses (v1.0) |
 |---|---|---|
 | **Admin** | Operator sistem / staf TU | **Full Access** — semua fitur, CRUD semua data |
-| Guru BK | Guru Bimbingan Konseling | Read-only + input pelanggaran *(fase berikutnya)* |
+| Guru BK | Guru BK | Read-only + input pelanggaran *(fase berikutnya)* |
 | Wali Kelas | Wali kelas per rombel | Read-only data kelasnya *(fase berikutnya)* |
 | Siswa | Peserta didik | Lihat rekap poin diri sendiri *(fase berikutnya)* |
 

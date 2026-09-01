@@ -1,4 +1,4 @@
-# Smart BK - Sistem Informasi Bimbingan & Konseling
+# Smart BK - Kesiswaan
 
 **Version 1.0** | Stack: PHP Native + MySQL + JavaScript
 
@@ -390,4 +390,4 @@ Untuk pertanyaan, bug report, atau feature request, silakan buka issue di reposi
 
 ---
 
-**Smart BK v1.0** — Digitalisasi Bimbingan Konseling Sekolah 🎓
+**Smart BK v1.0** — Sistem Kesiswaan Sekolah 🎓

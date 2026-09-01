@@ -1,6 +1,6 @@
 {
     "name": "smartbk/smartbk",
-    "description": "Smart BK - Sistem Informasi Bimbingan Konseling",
+    "description": "Smart BK - Kesiswaan",
     "type": "project",
     "require": {
         "php": ">=8.1",

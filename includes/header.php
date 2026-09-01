@@ -33,7 +33,7 @@ if (!isset($activeMenu)) {
             <div class="brand-icon">SB</div>
             <div>
                 <h1>Smart BK</h1>
-                <p>Sistem BK sekolah</p>
+                <p>Pencatatan Pelanggaran Siswa</p>
             </div>
         </div>
 
@@ -80,7 +80,7 @@ if (!isset($activeMenu)) {
     <main class="main-content">
         <header class="topbar">
             <div>
-                <p class="eyebrow">Sistem Informasi Bimbingan Konseling</p>
+                <p class="eyebrow">Pencatatan Pelanggaran Siswa</p>
                 <h2><?= htmlspecialchars($pageTitle) ?></h2>
             </div>
             <div class="topbar-actions">
