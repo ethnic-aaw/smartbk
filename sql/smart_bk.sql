@@ -5,11 +5,21 @@ CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nama VARCHAR(100) NOT NULL,
   username VARCHAR(100) NOT NULL UNIQUE,
+  google_id VARCHAR(150) NULL UNIQUE,
+  email VARCHAR(150) NULL UNIQUE,
+  email_verified_at DATETIME NULL,
   password_hash VARCHAR(255) NOT NULL,
-  role ENUM('Admin','Guru BK','Wali Kelas','Siswa') NOT NULL,
+  role ENUM('Admin','Guru BK','Wali Kelas','Guru','Siswa') NOT NULL,
   kelas_id INT NULL,
+  siswa_id INT NULL,
   status ENUM('Aktif','Nonaktif') NOT NULL DEFAULT 'Aktif',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  approval_status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'approved',
+  approved_by INT NULL,
+  approved_at DATETIME NULL,
+  registration_token VARCHAR(64) NULL UNIQUE,
+  last_login_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_users_siswa_id (siswa_id)
 );
 
 CREATE TABLE IF NOT EXISTS kelas (
@@ -24,6 +34,8 @@ CREATE TABLE IF NOT EXISTS kelas (
 CREATE TABLE IF NOT EXISTS siswa (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nipd VARCHAR(20) NOT NULL UNIQUE,
+  email VARCHAR(150) NULL UNIQUE,
+  google_id VARCHAR(100) NULL UNIQUE,
   nama VARCHAR(100) NOT NULL,
   jenis_kelamin ENUM('L','P') NOT NULL,
   kelas_id INT NULL,
@@ -128,10 +140,10 @@ CREATE TABLE IF NOT EXISTS log_generate (
   INDEX idx_tahun_lama (tahun_ajaran_lama, status)
 );
 
-INSERT INTO users (nama, username, password_hash, role, kelas_id, status) VALUES
-('Admin Smart BK', 'admin', '$2y$10$hw8zMzkNmQRGcfhNlFM5m.4y8j.l0fb0QLcYwpUc4i0e/0oB76trC', 'Admin', NULL, 'Aktif'),
-('Hana Fitri', 'hana@belajar.id', '$2y$10$hw8zMzkNmQRGcfhNlFM5m.4y8j.l0fb0QLcYwpUc4i0e/0oB76trC', 'Guru BK', NULL, 'Aktif'),
-('Rina Lestari', 'rina@belajar.id', '$2y$10$hw8zMzkNmQRGcfhNlFM5m.4y8j.l0fb0QLcYwpUc4i0e/0oB76trC', 'Wali Kelas', 1, 'Aktif');
+INSERT INTO users (nama, username, password_hash, role, kelas_id, status, approval_status) VALUES
+('Admin Smart BK', 'admin', '$2y$10$hw8zMzkNmQRGcfhNlFM5m.4y8j.l0fb0QLcYwpUc4i0e/0oB76trC', 'Admin', NULL, 'Aktif', 'approved'),
+('Hana Fitri', 'hana@belajar.id', '$2y$10$hw8zMzkNmQRGcfhNlFM5m.4y8j.l0fb0QLcYwpUc4i0e/0oB76trC', 'Guru BK', NULL, 'Aktif', 'approved'),
+('Rina Lestari', 'rina@belajar.id', '$2y$10$hw8zMzkNmQRGcfhNlFM5m.4y8j.l0fb0QLcYwpUc4i0e/0oB76trC', 'Wali Kelas', 1, 'Aktif', 'approved');
 
 INSERT INTO kelas (nama_kelas, tingkat, wali_kelas_id, tahun_ajaran) VALUES
 ('X IPA 1', 'X', 3, '2024/2025'),
@@ -155,3 +167,27 @@ INSERT INTO pelanggaran_siswa (siswa_id, jenis_pelanggaran_id, tanggal, lokasi, 
 (1, 3, '2026-06-11', 'Lingkungan sekolah', 'Membolos jam pelajaran', 'Peringatan', 1),
 (2, 1, '2026-02-22', 'Gerbang sekolah', 'Terlambat masuk', 'Peringatan lisan', 1),
 (2, 4, '2026-07-08', 'Lapangan', 'Berkelahi dengan teman', 'Panggilan orang tua', 1);
+
+-- ============================================================
+-- Tabel user_approvals: Log approval/rejection
+-- ============================================================
+CREATE TABLE IF NOT EXISTS user_approvals (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  approver_id INT NULL,
+  action ENUM('approved','rejected') NOT NULL,
+  note TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (approver_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_user_status (user_id, action)
+);
+
+-- ============================================================
+-- Indexes & Foreign Keys (setelah semua tabel dibuat)
+-- ============================================================
+CREATE INDEX idx_users_google_id ON users(google_id);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_approval_status ON users(approval_status);
+CREATE INDEX idx_siswa_email ON siswa(email);
+CREATE INDEX idx_siswa_google_id ON siswa(google_id);
