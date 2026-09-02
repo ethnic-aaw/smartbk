@@ -43,7 +43,11 @@ function db_query($sql, $params = [])
     if (!db_is_ready()) {
         return false;
     }
-    $stmt = $mysqli->prepare($sql);
+    try {
+        $stmt = $mysqli->prepare($sql);
+    } catch (mysqli_sql_exception $e) {
+        return false;
+    }
     if (!$stmt) {
         return false;
     }
