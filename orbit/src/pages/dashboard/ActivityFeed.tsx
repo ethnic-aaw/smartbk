@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertTriangle, MessageSquare, Clock, RefreshCw } from 'lucide-react'
+import { AlertTriangle, MessageSquare, Clock } from 'lucide-react'
 import { Card, CardHeader, CardBody, Badge } from '@/components/ui'
 import { cn } from '@/utils/cn'
 
@@ -25,8 +25,9 @@ export function ActivityFeed({ refreshKey }: ActivityFeedProps) {
 
   useEffect(() => {
     setLoading(true)
+    const base = (window as any).APP_BASE ?? ''
     // Fetch recent violations
-    const violPromise = fetch(`/smartbk/api/pelanggaran/list.php?limit=5`, { credentials: 'same-origin' })
+    const violPromise = fetch(`${base}/api/pelanggaran/list.php?limit=5`, { credentials: 'same-origin' })
       .then(r => r.json())
       .then(d => {
         if (d.error) return []
@@ -44,7 +45,7 @@ export function ActivityFeed({ refreshKey }: ActivityFeedProps) {
       .catch(() => [])
 
     // Fetch recent consultations
-    const consPromise = fetch(`/smartbk/api/konsultasi/list.php?limit=5`, { credentials: 'same-origin' })
+    const consPromise = fetch(`${base}/api/konsultasi/list.php?limit=5`, { credentials: 'same-origin' })
       .then(r => r.json())
       .then(d => {
         if (d.error) return []

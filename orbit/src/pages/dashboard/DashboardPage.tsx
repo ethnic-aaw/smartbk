@@ -86,7 +86,8 @@ export function DashboardPage() {
 
   const fetchData = useCallback(() => {
     setLoading(true)
-    fetch(`/smartbk/api/dashboard/analytics.php?period=${period}`, { credentials: 'same-origin' })
+    const base = (window as any).APP_BASE ?? ''
+    fetch(`${base}/api/dashboard/analytics.php?period=${period}`, { credentials: 'same-origin' })
       .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json() })
       .then(d => {
         if (d.error) throw new Error(d.error)
@@ -102,10 +103,11 @@ export function DashboardPage() {
     fetchData()
   }, [fetchData])
 
-  // Auto-refresh every 60 seconds
+  // Auto-refresh every 60 seconds — paused when tab hidden
   useEffect(() => {
     if (!autoRefresh) return
     const interval = setInterval(() => {
+      if (document.visibilityState !== 'visible') return
       fetchData()
       setRefreshKey(k => k + 1)
     }, 60000)

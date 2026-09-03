@@ -28,24 +28,24 @@ try {
     // 1. Total siswa aktif
     $siswaParams = ["Aktif", $tahunAjaran];
     if ($userKelasId) { $siswaParams[] = $userKelasId; }
-    $response["totalSiswa"] = (int) db_fetch(
+    $response["totalSiswa"] = (int) ((db_fetch(
         "SELECT COUNT(*) AS c FROM siswa s JOIN kelas k ON k.id = s.kelas_id WHERE s.status = ? AND k.tahun_ajaran = ?" . ($userKelasId ? " AND s.kelas_id = ?" : ""),
         $siswaParams, "row"
-    )["c"] ?? 0;
+    ) ?: [])["c"] ?? 0);
 
     // 2. Total kelas
     $kelasParams = [$tahunAjaran];
     if ($userKelasId) { $kelasParams[] = $userKelasId; }
-    $response["totalKelas"] = (int) db_fetch(
+    $response["totalKelas"] = (int) ((db_fetch(
         "SELECT COUNT(*) AS c FROM kelas WHERE tahun_ajaran = ?" . ($userKelasId ? " AND id = ?" : ""),
         $kelasParams, "row"
-    )["c"] ?? 0;
+    ) ?: [])["c"] ?? 0);
 
     // 3. Siswa bermasalah (poin > 75)
     $probParams = ["Aktif", $tahunAjaran];
     $probKelasSql = "";
     if ($userKelasId) { $probKelasSql = " AND s.kelas_id = ?"; $probParams[] = $userKelasId; }
-    $response["siswaBermasalah"] = (int) db_fetch(
+    $response["siswaBermasalah"] = (int) ((db_fetch(
         "SELECT COUNT(*) AS c FROM (
             SELECT s.id FROM pelanggaran_siswa p
             JOIN jenis_pelanggaran j ON j.id = p.jenis_pelanggaran_id
@@ -54,19 +54,19 @@ try {
             WHERE s.status = ? AND k.tahun_ajaran = ?$probKelasSql
             GROUP BY s.id HAVING SUM(j.bobot_poin) > 75
         ) t", $probParams, "row"
-    )["c"] ?? 0;
+    ) ?: [])["c"] ?? 0);
 
     // 4. Pelanggaran hari ini
     $todayParams = [$tahunAjaran];
     $todayKelasSql = "";
     if ($userKelasId) { $todayKelasSql = " AND s.kelas_id = ?"; $todayParams[] = $userKelasId; }
-    $response["pelanggaranHariIni"] = (int) db_fetch(
+    $response["pelanggaranHariIni"] = (int) ((db_fetch(
         "SELECT COUNT(*) AS c FROM pelanggaran_siswa p
          JOIN siswa s ON s.id = p.siswa_id
          JOIN kelas k ON k.id = s.kelas_id
          WHERE k.tahun_ajaran = ? AND p.tanggal = CURDATE()$todayKelasSql",
         $todayParams, "row"
-    )["c"] ?? 0;
+    ) ?: [])["c"] ?? 0);
 
     // 5. Kategori dominan
     $catParams = [$tahunAjaran];
@@ -186,6 +186,7 @@ try {
     echo json_encode($response);
 
 } catch (\Throwable $e) {
+    error_log("analytics.php error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
     http_response_code(500);
-    echo json_encode(["error" => $e->getMessage(), "file" => $e->getFile(), "line" => $e->getLine()]);
+    echo json_encode(["error" => "Terjadi kesalahan server. Silakan coba lagi."]);
 }

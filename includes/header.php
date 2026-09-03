@@ -39,8 +39,8 @@ if (!isset($activeMenu)) {
 
         <nav class="nav-links">
             <?php
-            function svg_icon(string $inner): string {
-                return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $inner . '</svg>';
+            if (!function_exists('svg_icon')) {
+                require_once __DIR__ . '/functions.php';
             }
             $menuItems = [
                 ['key' => 'dashboard', 'label' => 'Dashboard', 'url' => rtrim(APP_BASE, '/') . '/dashboard.php', 'icon' => svg_icon('<rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>')],

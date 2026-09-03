@@ -6,6 +6,9 @@ import { resolve } from 'path'
 const isDash = process.env.DASH === '1'
 
 export default defineConfig({
+  // ponytail: dash uses relative base './' intentionally — dashboard.php loads
+  // dashboard.js via absolute APP_BASE, chunks resolve relative to that
+  // (./chunks/...). Absolute base would break when APP_BASE is '/' in prod.
   base: isDash ? './' : '/orbit/',
   plugins: [react(), tailwindcss()],
   resolve: {

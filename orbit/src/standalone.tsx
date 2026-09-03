@@ -1,9 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Component, type ReactNode } from 'react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import type { Theme } from './types'
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; msg: string }> {
+  state = { hasError: false, msg: '' }
+  static getDerivedStateFromError(e: Error) { return { hasError: true, msg: e.message } }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+          <p className="text-sm font-semibold text-red-400">Dashboard gagal dimuat</p>
+          <p className="text-xs text-slate-500 mt-1 max-w-md break-all">{this.state.msg}</p>
+          <button onClick={() => location.reload()} className="mt-4 px-4 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-900 hover:bg-slate-100">Muat ulang</button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function useObTheme(ref: React.RefObject<HTMLDivElement | null>) {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -54,7 +71,7 @@ function App() {
 
   return (
     <div className="ob-dash" ref={setWrapper}>
-      <DashboardPage />
+      <ErrorBoundary><DashboardPage /></ErrorBoundary>
       <ThemeToggle theme={theme} toggle={toggle} />
     </div>
   )
