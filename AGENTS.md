@@ -32,7 +32,8 @@ npm run build            # normal orbit build (not used by PHP)
 ## Structure
 - `index.php`→`login.php`→`dashboard.php` — entry flow; `logout.php`, `register.php`, `pending_approval.php`.
 - `api/` — session-REST, each file is an endpoint; helpers in `api/index.php` (`api_response`/`api_error`/`api_success`, `require_auth`/`require_role`, `get_json_input`). See `api/README.md`.
-- `includes/` — `auth.php` (guards + `is_wali_kelas`/`can_see_all_data`/`can_approve_users`), `session.php` (lockout 5 fails/15 min), `functions.php`, `upload.php` (gd resize 150×150, evidence resize).
+- `includes/` — `auth.php` (guards + `is_wali_kelas`/`can_see_all_data`/`can_approve_users`), `session.php` (lockout 5 fails/15 min), `functions.php`, `upload.php` thin shim → `src/Uploader.php` (single upload base).
+- `src/` — `Uploader.php` (centralized upload/delete, fixes `../../` bug, basename guard), `Validators.php` (shared `validateSiswa`/`validateJenisPelanggaran` + enums).
 - `siswa/`, `user/`, `kelas/`, `pelanggaran/`, `buku_tamu/`, `konsultasi/` — PHP page CRUD (not API).
 - `sql/smart_bk.sql` — fresh install (auto-mounted on first `docker compose up`). `sql/migrations/` (v1.1.0–v1.6.2) are **not** auto-run — apply manually.
 - `assets/uploads/` — bind-mounted + `.gitignore`d; subdirs `foto_siswa`, `bukti_pelanggaran`, `lampiran_konsultasi`, `kop` need `www-data` write.
