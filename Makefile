@@ -14,9 +14,9 @@ install: ## setup awal: .env + composer + orbit deps
 orbit-install: ## npm install di orbit/
 	cd orbit && npm install
 
-up: ## docker up (port 9000)
+up: orbit-build-dash ## docker up (port 9000, build dashboard dulu)
 	$(DC) up -d --build
-	@echo "→ $(APP_URL)"
+	@echo "→ $(APP_URL) — hard refresh browser (Ctrl+Shift+R) setelah up"
 
 down: ## docker down
 	$(DC) down
@@ -24,7 +24,7 @@ down: ## docker down
 restart: ## restart app
 	$(DC) restart app
 
-rebuild: ## reset DB volume & re-import sql/smart_bk.sql
+rebuild: orbit-build-dash ## reset DB volume & re-import sql/smart_bk.sql (build dashboard dulu)
 	$(DC) down -v
 	$(DC) up -d --build
 
