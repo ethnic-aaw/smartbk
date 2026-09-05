@@ -91,7 +91,7 @@ export function DashboardPage() {
       .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json() })
       .then(d => {
         if (d.error) throw new Error(d.error)
-        setData(d)
+        setData(d.data ?? d)
         setError(null)
         setLastUpdated(new Date())
       })
@@ -123,7 +123,7 @@ export function DashboardPage() {
     {
       id: 'total-siswa',
       label: 'Total Siswa Aktif',
-      value: data.totalSiswa.toLocaleString('id-ID'),
+      value: data.totalSiswa?.toLocaleString('id-ID') ?? '-',
       change: 0,
       changeLabel: `Tahun ${data.tahunAjaran}`,
       icon: Users,
@@ -133,7 +133,7 @@ export function DashboardPage() {
     {
       id: 'total-kelas',
       label: 'Total Kelas',
-      value: data.totalKelas.toLocaleString('id-ID'),
+      value: data.totalKelas?.toLocaleString('id-ID') ?? '-',
       change: 0,
       changeLabel: 'Rombongan belajar',
       icon: BookOpen,
@@ -143,8 +143,8 @@ export function DashboardPage() {
     {
       id: 'siswa-bermasalah',
       label: 'Siswa Bermasalah',
-      value: data.siswaBermasalah.toLocaleString('id-ID'),
-      change: data.siswaBermasalah,
+      value: data.siswaBermasalah?.toLocaleString('id-ID') ?? '-',
+      change: data.siswaBermasalah ?? 0,
       changeLabel: 'Poin > 75 (kritis)',
       icon: AlertTriangle,
       color: 'warning',
@@ -153,8 +153,8 @@ export function DashboardPage() {
     {
       id: 'pelanggaran-hari',
       label: 'Pelanggaran Hari Ini',
-      value: data.pelanggaranHariIni.toLocaleString('id-ID'),
-      change: data.pelanggaranHariIni,
+      value: data.pelanggaranHariIni?.toLocaleString('id-ID') ?? '-',
+      change: data.pelanggaranHariIni ?? 0,
       changeLabel: 'Dicatat hari ini',
       icon: CalendarX,
       color: 'success',
@@ -181,7 +181,7 @@ export function DashboardPage() {
 
   // Summary items for the horizontal bar
   const summaryItems = data ? [
-    { label: 'Total Pelanggaran', value: data.trenPelanggaran.reduce((s, r) => s + r.jumlah, 0), color: '#EF4444' },
+    { label: 'Total Pelanggaran', value: data.trenPelanggaran?.reduce((s, r) => s + r.jumlah, 0) ?? 0, color: '#EF4444' },
     { label: 'Kategori Teratas', value: data.kategoriDominan[0]?.count || 0, suffix: data.kategoriDominan[0]?.name, color: '#2563EB' },
     { label: 'Rata-rata Poin', value: data.topSiswa.length > 0 ? Math.round(data.topSiswa.reduce((s, r) => s + r.total_poin, 0) / data.topSiswa.length) : 0, color: '#F59E0B' },
     { label: 'Siswa Tercatat', value: data.topSiswa.length, color: '#10B981' },
