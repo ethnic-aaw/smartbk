@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../index.php';
+require_once __DIR__ . '/../../src/Validators.php';
+
+use SmartBK\Validators;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     api_error('Method not allowed', 405);
@@ -8,6 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 require_role(['Admin']);
 
 $input = get_json_input();
+
+// Default status to 'Aktif' when missing/null (also enforced by DB DEFAULT).
+$input['status'] = trim($input['status'] ?? 'Aktif');
+
+// Field-level validation via central validator (uniqueness / references checked below).
+$errors = Validators::validateSiswa($input);
+if (!empty($errors)) {
+    api_error(reset($errors));
+}
 
 $nipd = trim($input['nipd'] ?? '');
 $nama = trim($input['nama'] ?? '');
@@ -27,19 +39,6 @@ $nama_wali = trim($input['nama_wali'] ?? '');
 $alamat_orang_tua = trim($input['alamat_orang_tua'] ?? '');
 $alamat = trim($input['alamat'] ?? '');
 $status = trim($input['status'] ?? 'Aktif');
-
-if ($nipd === '') {
-    api_error('NIPD/NIS wajib diisi.');
-}
-if ($nama === '') {
-    api_error('Nama lengkap wajib diisi.');
-}
-if (!in_array($jenis_kelamin, ['L', 'P'], true)) {
-    api_error('Jenis kelamin harus L atau P.');
-}
-if (!in_array($status, ['Aktif', 'Tidak Aktif', 'Pindah', 'Lulus'], true)) {
-    api_error('Status tidak valid.');
-}
 
 $existing = db_fetch('SELECT id FROM siswa WHERE nipd = ? LIMIT 1', [$nipd], 'row');
 if ($existing) {
