@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../index.php';
+require_once __DIR__ . '/../../src/Uploader.php';
+
+use SmartBK\Uploader;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'DELETE' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
     api_error('Method not allowed', 405);
@@ -19,10 +22,7 @@ if (!$existing) {
 
 // Hapus file lampiran jika ada
 if (!empty($existing['lampiran_file'])) {
-    $path = __DIR__ . '/../../assets/uploads/lampiran_konsultasi/' . $existing['lampiran_file'];
-    if (file_exists($path)) {
-        @unlink($path);
-    }
+    Uploader::hapusLampiranKonsultasi($existing['lampiran_file']);
 }
 
 $stmt = db_query('DELETE FROM konsultasi_siswa WHERE id = ?', [$id]);

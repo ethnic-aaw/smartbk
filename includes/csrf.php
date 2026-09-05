@@ -1,7 +1,12 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+/**
+ * CSRF protection helpers.
+ *
+ * Session lifecycle is owned exclusively by includes/session.php, which starts
+ * the session exactly once. This file MUST be required AFTER session.php so the
+ * $_SESSION superglobal is already active when the helpers below run. We
+ * deliberately do NOT call session_start() here to avoid a duplicate start.
+ */
 
 function csrf_token(): string
 {

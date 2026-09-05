@@ -96,3 +96,50 @@ function db_last_id()
     global $mysqli;
     return $mysqli ? (int) $mysqli->insert_id : 0;
 }
+
+/**
+ * Transaction helpers.
+ *
+ * Wrap mysqli's transaction API so application/library code never touches the
+ * global $mysqli handle directly for transaction control. Every helper degrades
+ * gracefully (returns false) when the DB connection is unavailable or raises an
+ * error, instead of throwing an uncaught exception.
+ */
+function db_begin(): bool
+{
+    global $mysqli;
+    if (!db_is_ready()) {
+        return false;
+    }
+    try {
+        return $mysqli->begin_transaction();
+    } catch (mysqli_sql_exception $e) {
+        return false;
+    }
+}
+
+function db_commit(): bool
+{
+    global $mysqli;
+    if (!db_is_ready()) {
+        return false;
+    }
+    try {
+        return $mysqli->commit();
+    } catch (mysqli_sql_exception $e) {
+        return false;
+    }
+}
+
+function db_rollback(): bool
+{
+    global $mysqli;
+    if (!db_is_ready()) {
+        return false;
+    }
+    try {
+        return $mysqli->rollback();
+    } catch (mysqli_sql_exception $e) {
+        return false;
+    }
+}

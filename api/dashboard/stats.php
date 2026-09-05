@@ -1,16 +1,16 @@
 <?php
 /** @deprecated Tidak dipakai — dashboard React memakai api/dashboard/analytics.php. Disimpan untuk referensi. */
-require_once __DIR__ . "/../../config/db.php";
+require_once __DIR__ . '/../index.php';
 
-header("Content-Type: application/json; charset=utf-8");
-
-if (!db_is_ready()) {
-    echo json_encode(["error" => "Database tidak tersedia"]);
-    exit;
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    api_error('Method not allowed', 405);
 }
 
-require_once __DIR__ . "/../../includes/auth.php";
-require_once __DIR__ . "/../../includes/functions.php";
+require_auth();
+
+if (!db_is_ready()) {
+    api_error('Database tidak tersedia', 503);
+}
 
 $tahunAjaran = current_tahun_ajaran();
 $userKelasId = current_kelas_scope();
@@ -186,4 +186,4 @@ $response["approvalUsers"] = [
     )["c"] ?? 0,
 ];
 
-echo json_encode($response);
+api_success($response);

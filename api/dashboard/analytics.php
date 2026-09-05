@@ -1,25 +1,16 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-header("Content-Type: application/json; charset=utf-8");
+require_once __DIR__ . '/../index.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    api_error('Method not allowed', 405);
+}
+
+require_auth();
 
 try {
-    require_once __DIR__ . "/../../config/db.php";
-
     if (!db_is_ready()) {
-        http_response_code(503);
-        echo json_encode(["error" => "Database tidak tersedia"]);
-        exit;
+        api_error('Database tidak tersedia', 503);
     }
-
-    require_once __DIR__ . "/../../includes/session.php";
-    if (empty($_SESSION['user'])) {
-        http_response_code(401);
-        echo json_encode(["error" => "Unauthorized"]);
-        exit;
-    }
-
-    require_once __DIR__ . "/../../includes/functions.php";
 
     $tahunAjaran = current_tahun_ajaran();
     $userKelasId = current_kelas_scope();
@@ -183,10 +174,9 @@ try {
     $response["tahunAjaran"] = $tahunAjaran;
     $response["period"] = $period;
 
-    echo json_encode($response);
+    api_success($response);
 
 } catch (\Throwable $e) {
     error_log("analytics.php error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
-    http_response_code(500);
-    echo json_encode(["error" => "Terjadi kesalahan server. Silakan coba lagi."]);
+    api_error('Terjadi kesalahan server. Silakan coba lagi.', 500);
 }
