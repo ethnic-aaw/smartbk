@@ -3,8 +3,8 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/generate_lib.php';
 
-// Only Admin can access this page
-if ($_SESSION['user']['role'] !== 'Admin') {
+// Only Admin & Guru BK can access this page
+if (!can_see_all_data()) {
     set_flash('error', 'Anda tidak memiliki akses ke halaman ini.');
     redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
 }

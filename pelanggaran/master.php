@@ -5,8 +5,8 @@ require_once __DIR__ . '/../includes/functions.php';
 $pageTitle = 'Master Pelanggaran';
 $activeMenu = 'pelanggaran_master';
 
-// Only Admin can manage jenis pelanggaran
-if ($_SESSION['user']['role'] !== 'Admin') {
+// Only Admin & Guru BK can manage jenis pelanggaran
+if (!can_see_all_data()) {
     set_flash('error', 'Anda tidak memiliki akses ke halaman ini.');
     redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
 }
