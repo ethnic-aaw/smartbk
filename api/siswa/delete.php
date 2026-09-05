@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../index.php';
+require_once __DIR__ . '/../../src/Uploader.php';
+
+use SmartBK\Uploader;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'DELETE' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
     api_error('Method not allowed', 405);
@@ -20,10 +23,7 @@ if (!$existing) {
 db_query('DELETE FROM pelanggaran_siswa WHERE siswa_id = ?', [$id]);
 
 if (!empty($existing['foto'])) {
-    $fotoPath = __DIR__ . '/../../assets/uploads/foto_siswa/' . $existing['foto'];
-    if (file_exists($fotoPath)) {
-        @unlink($fotoPath);
-    }
+    Uploader::hapusFotoSiswa($existing['foto']);
 }
 
 $stmt = db_query('DELETE FROM siswa WHERE id = ?', [$id]);

@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/upload.php';
+require_once __DIR__ . '/../src/Validators.php';
+
+use SmartBK\Validators;
 
 // Wali Kelas tidak boleh menambah siswa
 if (!can_see_all_data()) {
@@ -45,25 +48,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'status' => trim($_POST['status'] ?? 'Aktif'),
     ]);
 
-    if ($old['nipd'] === '') {
-        $errors['nipd'] = 'NIPD/NIS wajib diisi.';
-    } elseif (strlen($old['nipd']) > 20) {
-        $errors['nipd'] = 'NIPD/NIS maksimal 20 karakter.';
-    } else {
+    // Coerce invalid status to default (page allows silent fallback to 'Aktif').
+    if (!in_array($old['status'], Validators::STATUS_SISWA, true)) {
+        $old['status'] = 'Aktif';
+    }
+
+    // Field-level validation via central validator (uniqueness checked below).
+    $errors = Validators::validateSiswa($old);
+
+    // NIPD uniqueness — enforced by DB UNIQUE constraint; check here for a friendly message.
+    if (empty($errors['nipd'])) {
         $dup = db_fetch('SELECT id FROM siswa WHERE nipd = ? LIMIT 1', [$old['nipd']], 'row');
         if ($dup) {
             $errors['nipd'] = 'NIPD/NIS sudah terdaftar.';
         }
-    }
-
-    if ($old['nama'] === '') {
-        $errors['nama'] = 'Nama lengkap wajib diisi.';
-    } elseif (strlen($old['nama']) > 100) {
-        $errors['nama'] = 'Nama maksimal 100 karakter.';
-    }
-
-    if (!in_array($old['status'], ['Aktif', 'Tidak Aktif', 'Pindah', 'Lulus'], true)) {
-        $old['status'] = 'Aktif';
     }
 
     $fotoName = null;
@@ -170,7 +168,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <div class="form-group">
                         <label>Status</label>
                         <select name="status">
-                            <?php foreach (['Aktif', 'Tidak Aktif', 'Pindah', 'Lulus'] as $st): ?>
+                            <?php foreach (Validators::STATUS_SISWA as $st): ?>
                                 <option value="<?= e($st) ?>" <?= $old['status'] === $st ? 'selected' : '' ?>><?= e($st) ?></option>
                             <?php endforeach; ?>
                         </select>

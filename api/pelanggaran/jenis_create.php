@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../index.php';
+require_once __DIR__ . '/../../src/Validators.php';
+
+use SmartBK\Validators;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     api_error('Method not allowed', 405);
@@ -9,6 +12,12 @@ require_role(['Admin']);
 
 $input = get_json_input();
 
+// Field-level validation via central validator (uniqueness checked below).
+$errors = Validators::validateJenisPelanggaran($input);
+if (!empty($errors)) {
+    api_error(reset($errors));
+}
+
 $kode = trim($input['kode'] ?? '');
 $nama = trim($input['nama'] ?? '');
 $komponen = trim($input['komponen'] ?? '');
@@ -16,28 +25,6 @@ $kategori = trim($input['kategori'] ?? '');
 $bobot_poin = (int) ($input['bobot_poin'] ?? 0);
 $deskripsi = trim($input['deskripsi'] ?? '');
 $konsekuensi = trim($input['konsekuensi'] ?? '');
-
-$validKomponen = [
-    'Kehadiran', 'Kegiatan Belajar Mengajar', 'Pakaian Seragam', 'Makan dan Minum',
-    'Izin Meninggalkan Sekolah', 'Perkelahian', 'Praktik Kerja Lapangan (PKL)',
-    'Kebersihan Lingkungan', 'Lain-lain',
-];
-
-if ($kode === '') {
-    api_error('Kode pelanggaran wajib diisi.');
-}
-if ($nama === '') {
-    api_error('Nama pelanggaran wajib diisi.');
-}
-if (!in_array($kategori, ['Kedisiplinan', 'Tata Krama', 'Kekerasan', 'Narkoba', 'Lainnya'], true)) {
-    api_error('Kategori tidak valid.');
-}
-if (!in_array($komponen, $validKomponen, true)) {
-    api_error('Komponen tidak valid.');
-}
-if ($bobot_poin <= 0 || $bobot_poin > 100) {
-    api_error('Bobot poin harus antara 1-100.');
-}
 
 $existing = db_fetch('SELECT id FROM jenis_pelanggaran WHERE kode = ? LIMIT 1', [$kode], 'row');
 if ($existing) {

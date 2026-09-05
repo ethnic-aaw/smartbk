@@ -1,9 +1,12 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../src/Validators.php';
 
-// Only Admin can access this page
-if ($_SESSION['user']['role'] !== 'Admin') {
+use SmartBK\Validators;
+
+// Admin + Guru BK dapat mengelola jenis pelanggaran; Wali Kelas read-only.
+if (!can_see_all_data()) {
     set_flash('error', 'Anda tidak memiliki akses ke halaman ini.');
     redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
 }
@@ -12,11 +15,6 @@ $pageTitle = 'Tambah Pelanggaran';
 $activeMenu = 'pelanggaran_master';
 
 $errors = [];
-$validKomponen = [
-    'Kehadiran', 'Kegiatan Belajar Mengajar', 'Pakaian Seragam', 'Makan dan Minum',
-    'Izin Meninggalkan Sekolah', 'Perkelahian', 'Praktik Kerja Lapangan (PKL)',
-    'Kebersihan Lingkungan', 'Lain-lain',
-];
 $old = ['kode' => '', 'nama' => '', 'komponen' => 'Kehadiran', 'kategori' => 'Kedisiplinan', 'bobot_poin' => '', 'deskripsi' => '', 'konsekuensi' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -30,35 +28,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'konsekuensi' => trim($_POST['konsekuensi'] ?? ''),
     ];
 
-    if ($old['kode'] === '') {
-        $errors['kode'] = 'Kode wajib diisi.';
-    } else {
+    // Coerce invalid enum values to defaults (page allows silent fallback).
+    if (!in_array($old['komponen'], Validators::KOMPONEN_PELANGGARAN, true)) {
+        $old['komponen'] = 'Kehadiran';
+    }
+    if (!in_array($old['kategori'], Validators::KATEGORI_PELANGGARAN, true)) {
+        $old['kategori'] = 'Kedisiplinan';
+    }
+
+    // Field-level validation via central validator (uniqueness checked below).
+    $errors = Validators::validateJenisPelanggaran($old);
+
+    // Kode uniqueness — enforced by DB UNIQUE constraint; check here for a friendly message.
+    if (empty($errors['kode'])) {
         $dup = db_fetch('SELECT id FROM jenis_pelanggaran WHERE kode = ? LIMIT 1', [$old['kode']], 'row');
         if ($dup) {
             $errors['kode'] = 'Kode sudah digunakan.';
         }
     }
 
-    if ($old['nama'] === '') {
-        $errors['nama'] = 'Nama pelanggaran wajib diisi.';
-    } elseif (strlen($old['nama']) > 150) {
-        $errors['nama'] = 'Nama maksimal 150 karakter.';
-    }
-
-    $poin = (int) $old['bobot_poin'];
-    if ($old['bobot_poin'] === '' || $poin < 1 || $poin > 100) {
-        $errors['bobot_poin'] = 'Bobot poin harus antara 1–100.';
-    }
-
-    $validKategori = ['Kedisiplinan', 'Tata Krama', 'Kekerasan', 'Narkoba', 'Lainnya'];
-    if (!in_array($old['kategori'], $validKategori, true)) {
-        $old['kategori'] = 'Kedisiplinan';
-    }
-    if (!in_array($old['komponen'], $validKomponen, true)) {
-        $old['komponen'] = 'Kehadiran';
-    }
-
     if (!$errors) {
+        $poin = (int) $old['bobot_poin'];
         $ok = db_query(
             'INSERT INTO jenis_pelanggaran (kode, nama, komponen, kategori, bobot_poin, deskripsi, konsekuensi) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [$old['kode'], $old['nama'], $old['komponen'], $old['kategori'], $poin, $old['deskripsi'] ?: null, $old['konsekuensi'] ?: null]
@@ -100,7 +90,7 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-group">
                 <label>Komponen</label>
                 <select name="komponen">
-                    <?php foreach ($validKomponen as $komp): ?>
+                    <?php foreach (Validators::KOMPONEN_PELANGGARAN as $komp): ?>
                         <option value="<?= e($komp) ?>" <?= $old['komponen'] === $komp ? 'selected' : '' ?>><?= e($komp) ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -108,7 +98,7 @@ require_once __DIR__ . '/../includes/header.php';
             <div class="form-group">
                 <label>Kategori</label>
                 <select name="kategori">
-                    <?php foreach (['Kedisiplinan', 'Tata Krama', 'Kekerasan', 'Narkoba', 'Lainnya'] as $cat): ?>
+                    <?php foreach (Validators::KATEGORI_PELANGGARAN as $cat): ?>
                         <option value="<?= e($cat) ?>" <?= $old['kategori'] === $cat ? 'selected' : '' ?>><?= e($cat) ?></option>
                     <?php endforeach; ?>
                 </select>

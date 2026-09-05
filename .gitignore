@@ -1,5 +1,9 @@
+
 assets/uploads/*
 !assets/uploads/.gitkeep
-
 # Docker secrets
 .env
+.slim/deepwork/
+
+# Composer
+/composer.phar

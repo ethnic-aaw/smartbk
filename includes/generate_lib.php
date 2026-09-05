@@ -6,8 +6,6 @@
 
 function generate_tahun_ajaran(string $tahunLama, string $tahunBaru, bool $buatKelasX): array
 {
-    global $mysqli;
-
     if (!db_is_ready()) {
         return ['success' => false, 'message' => 'Koneksi database tidak tersedia.'];
     }
@@ -34,7 +32,9 @@ function generate_tahun_ajaran(string $tahunLama, string $tahunBaru, bool $buatK
         return ['success' => false, 'message' => 'Masih ada generate aktif untuk tahun ajaran ini. Batalkan (Undo) terlebih dahulu.'];
     }
 
-    $mysqli->begin_transaction();
+    if (!db_begin()) {
+        return ['success' => false, 'message' => 'Gagal memulai transaksi database.'];
+    }
 
     try {
         $snapshot = ['siswa' => [], 'kelas_baru' => [], 'users' => []];
@@ -138,7 +138,7 @@ function generate_tahun_ajaran(string $tahunLama, string $tahunBaru, bool $buatK
             throw new RuntimeException('Gagal menyimpan log generate.');
         }
 
-        $mysqli->commit();
+        db_commit();
 
         $naik = 0;
         $lulus = 0;
@@ -156,17 +156,19 @@ function generate_tahun_ajaran(string $tahunLama, string $tahunBaru, bool $buatK
 
         return ['success' => true, 'message' => $message];
     } catch (Throwable $e) {
-        if ($mysqli->inTransaction()) {
-            $mysqli->rollback();
-        }
+        // db_begin() succeeded above (we only enter try after it) and
+        // db_commit() is the last statement in the try-block, so reaching
+        // here means an exception occurred before commit -> a transaction is
+        // still active. Roll it back unconditionally.
+        // (Previously this used $mysqli->inTransaction(), a PDO method that
+        // does not exist on mysqli and would fatal on the rollback path.)
+        db_rollback();
         return ['success' => false, 'message' => 'Generate gagal: ' . $e->getMessage()];
     }
 }
 
 function undo_tahun_ajaran(int $logId): array
 {
-    global $mysqli;
-
     if (!db_is_ready()) {
         return ['success' => false, 'message' => 'Koneksi database tidak tersedia.'];
     }
@@ -184,7 +186,9 @@ function undo_tahun_ajaran(int $logId): array
         return ['success' => false, 'message' => 'Data snapshot tidak valid.'];
     }
 
-    $mysqli->begin_transaction();
+    if (!db_begin()) {
+        return ['success' => false, 'message' => 'Gagal memulai transaksi database.'];
+    }
 
     try {
         // 1) Kembalikan data siswa ke kondisi sebelum generate
@@ -213,7 +217,7 @@ function undo_tahun_ajaran(int $logId): array
         // 4) Tandai log sebagai dibatalkan
         db_query('UPDATE log_generate SET status = ? WHERE id = ?', ['Dibatalkan', $logId]);
 
-        $mysqli->commit();
+        db_commit();
 
         $message = 'Generate tahun ajaran "' . $log['tahun_ajaran_baru'] . '" berhasil dibatalkan. Data siswa dikembalikan, '
             . $dihapus . ' kelas baru dihapus.';
@@ -223,9 +227,13 @@ function undo_tahun_ajaran(int $logId): array
 
         return ['success' => true, 'message' => $message];
     } catch (Throwable $e) {
-        if ($mysqli->inTransaction()) {
-            $mysqli->rollback();
-        }
+        // db_begin() succeeded above (we only enter try after it) and
+        // db_commit() is the last statement in the try-block, so reaching
+        // here means an exception occurred before commit -> a transaction is
+        // still active. Roll it back unconditionally.
+        // (Previously this used $mysqli->inTransaction(), a PDO method that
+        // does not exist on mysqli and would fatal on the rollback path.)
+        db_rollback();
         return ['success' => false, 'message' => 'Undo gagal: ' . $e->getMessage()];
     }
 }

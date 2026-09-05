@@ -9,7 +9,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
 // Hanya Admin & Guru BK bisa approve
-if (!can_see_all_data()) {
+if (!can_approve_users()) {
     set_flash('error', 'Anda tidak memiliki akses ke halaman ini.');
     redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
 }
