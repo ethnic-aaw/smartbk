@@ -53,12 +53,10 @@ if (!isset($activeMenu)) {
                 ['key' => 'buku_tamu', 'label' => 'Buku Tamu', 'url' => rtrim(APP_BASE, '/') . '/buku_tamu/index.php', 'icon' => svg_icon('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>'), 'bk_only' => true],
                 ['key' => 'konsultasi', 'label' => 'Konseling', 'url' => rtrim(APP_BASE, '/') . '/konsultasi/index.php', 'icon' => svg_icon('<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>'), 'bk_only' => true],
             ];
-            $userRole = $_SESSION['user']['role'] ?? '';
+            $canManage = function_exists('can_see_all_data') ? can_see_all_data() : false;
             foreach ($menuItems as $item):
-                if (isset($item['admin_only']) && $item['admin_only'] && $userRole !== 'Admin') {
-                    continue;
-                }
-                if (isset($item['bk_only']) && $item['bk_only'] && !in_array($userRole, ['Admin', 'Guru BK'], true)) {
+                $restricted = !empty($item['admin_only']) || !empty($item['bk_only']);
+                if ($restricted && !$canManage) {
                     continue;
                 }
             ?>

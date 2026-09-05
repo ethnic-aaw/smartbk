@@ -5,8 +5,8 @@ require_once __DIR__ . '/../includes/functions.php';
 $pageTitle = 'Master Kelas';
 $activeMenu = 'kelas';
 
-// Only Admin can manage kelas
-if ($_SESSION['user']['role'] !== 'Admin') {
+// Admin + Guru BK dapat mengelola kelas; Wali Kelas read-only.
+if (!can_see_all_data()) {
     set_flash('error', 'Anda tidak memiliki akses ke halaman ini.');
     redirect_to(rtrim(APP_BASE, '/') . '/dashboard.php');
 }
