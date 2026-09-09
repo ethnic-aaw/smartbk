@@ -7,6 +7,7 @@
 
 
 require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../config/app.php';
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../config/db.php';
@@ -24,10 +25,15 @@ if (!$oauth->verifyState($state)) {
 
 // 2. Cek error dari Google
 if (isset($_GET['error'])) {
-    $errorMsg = match ($_GET['error']) {
+    $raw = (string) $_GET['error'];
+    $desc = $_GET['error_description'] ?? '';
+    $errorMsg = match ($raw) {
         'access_denied' => 'Anda menolak izin akses. Silakan coba lagi dan izinkan akses.',
         'invalid_request' => 'Permintaan tidak valid.',
-        default => 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']),
+        'invalid_client' => 'Konfigurasi Google OAuth salah: Client ID tidak ditemukan di Google Cloud (Error 401 invalid_client). Periksa GOOGLE_CLIENT_ID di .env dan Authorized redirect URIs di Cloud Console.',
+        'unauthorized_client' => 'Client tidak diizinkan / belum di-verify. Tambahkan akun ke Test Users di OAuth Consent Screen.',
+        'redirect_uri_mismatch' => 'Redirect URI tidak cocok. Pastikan GOOGLE_REDIRECT_URI di .env persis sama dengan Authorized redirect URIs.',
+        default => 'Terjadi kesalahan: ' . htmlspecialchars($raw) . ($desc !== '' ? ' - ' . htmlspecialchars($desc) : ''),
     };
     set_flash('error', $errorMsg);
     header('Location: ' . APP_BASE . 'login.php');
@@ -65,7 +71,7 @@ try {
 
     if (!$dbUser) {
         $nama = $userInfo['name'] ?? $userInfo['email'];
-        $role = preg_match('/@guru\.smk\.belajar\.id$/i', $userInfo['email']) ? 'Guru BK' : 'Siswa';
+        $role = preg_match('/@guru\.smk\.belajar\.id$/i', $userInfo['email']) ? 'Guru BK' : (preg_match('/@([a-z0-9-]+\.)*smk\.belajar\.id$/i', $userInfo['email']) ? 'Guru' : 'Siswa');
         $approvalStatus = 'pending';
 
         $passwordHash = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);

@@ -11,10 +11,11 @@ services:
     environment:
       DB_HOST: db
       DB_NAME: smart_bk
-      # Tanpa file .env dipakai nilai default di bawah ini (lihat .env.example).
-      # Untuk produksi wajib override lewat .env.
       DB_USER: ${DB_USER:-smartbk}
       DB_PASS: ${DB_PASS:-smartbk_ChangeMe_2025}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
       TZ: Asia/Jakarta
     depends_on:
       db:
