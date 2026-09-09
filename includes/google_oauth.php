@@ -18,16 +18,34 @@ class GoogleOAuth
 
     public function __construct()
     {
-        $this->redirectUri = getenv('GOOGLE_REDIRECT_URI') 
-            ?: (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://') 
-                . ($_SERVER['HTTP_HOST'] ?? 'localhost') 
-                . rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') 
+        if (!defined('APP_BASE') && file_exists(__DIR__ . '/../config/app.php')) {
+            require_once __DIR__ . '/../config/app.php';
+        }
+        $envRedirect = getenv('GOOGLE_REDIRECT_URI');
+        if ($envRedirect === false || $envRedirect === '') {
+            $envRedirect = $_ENV['GOOGLE_REDIRECT_URI'] ?? '';
+        }
+        if ($envRedirect !== '' && $envRedirect !== false) {
+            $this->redirectUri = $envRedirect;
+        } elseif (defined('OAUTH_REDIRECT_URI')) {
+            $this->redirectUri = OAUTH_REDIRECT_URI;
+        } else {
+            $this->redirectUri = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://')
+                . ($_SERVER['HTTP_HOST'] ?? 'localhost')
+                . rtrim(defined('APP_BASE') ? APP_BASE : '/', '/')
                 . '/auth/google_callback.php';
+        }
 
         $this->client = new Google\Client();
-        $clientId = getenv('GOOGLE_CLIENT_ID') ?? '';
-        $clientSecret = getenv('GOOGLE_CLIENT_SECRET') ?? '';
-        if (empty($clientId) || empty($clientSecret)) {
+        $clientId = getenv('GOOGLE_CLIENT_ID');
+        if ($clientId === false || $clientId === '') {
+            $clientId = $_ENV['GOOGLE_CLIENT_ID'] ?? '';
+        }
+        $clientSecret = getenv('GOOGLE_CLIENT_SECRET');
+        if ($clientSecret === false || $clientSecret === '') {
+            $clientSecret = $_ENV['GOOGLE_CLIENT_SECRET'] ?? '';
+        }
+        if (empty($clientId) || empty($clientSecret) || str_contains($clientId, 'your-client-id')) {
             error_log('Google OAuth credentials are not configured.');
         }
         $this->client->setClientId($clientId);
@@ -96,12 +114,18 @@ class GoogleOAuth
         ];
     }
 
-    /**
-     * Validasi domain email (@belajar.id)
-     */
     public function validateDomain(string $email): bool
     {
-        return (bool) preg_match('/@(belajar\.id|guru\.smk\.belajar\.id)$/i', trim($email));
+        return (bool) preg_match('/@([a-z0-9.-]+\.)?belajar\.id$/i', trim($email));
+    }
+
+    public function isConfigured(): bool
+    {
+        $cid = getenv('GOOGLE_CLIENT_ID');
+        if ($cid === false || $cid === '') $cid = $_ENV['GOOGLE_CLIENT_ID'] ?? '';
+        $sec = getenv('GOOGLE_CLIENT_SECRET');
+        if ($sec === false || $sec === '') $sec = $_ENV['GOOGLE_CLIENT_SECRET'] ?? '';
+        return $cid !== '' && $sec !== '' && !str_contains($cid, 'your-client-id');
     }
 
     /**

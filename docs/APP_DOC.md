@@ -540,8 +540,9 @@ docker compose up -d --build
 # Import DB (first time)
 docker exec -i smartbk_db mysql -u root -psmartbk_Root_ChangeMe_2025 smart_bk < sql/smart_bk.sql
 
-# Akses
-http://IP_SERVER:9000/smartbk/
+# Akses (Docker root) — alias /smartbk juga didukung
+http://IP_SERVER:9000/
+# atau http://IP_SERVER:9000/smartbk/
 ```
 
 ### 9.3 Default Credentials
@@ -562,7 +563,9 @@ DB_PASS=ganti_dengan_password_kuat
 MYSQL_ROOT_PASSWORD=ganti_dengan_root_password_kuat
 GOOGLE_CLIENT_ID=your-client-id
 GOOGLE_CLIENT_SECRET=your-client-secret
-GOOGLE_REDIRECT_URI=http://localhost:9000/smartbk/auth/google_callback.php
+# Docker: tanpa /smartbk
+GOOGLE_REDIRECT_URI=http://localhost:9000/auth/google_callback.php
+# XAMPP: GOOGLE_REDIRECT_URI=http://localhost/smartbk/auth/google_callback.php
 ```
 
 ---

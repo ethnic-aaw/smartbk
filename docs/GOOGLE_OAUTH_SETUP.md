@@ -53,15 +53,16 @@
 3. **Application type**: **Web application**
 4. **Name**: `Smart BK Web Client`
 5. **Authorized JavaScript origins** (tambahkan semua yang berlaku):
-   - `http://localhost:9000` (development XAMPP)
-   - `http://localhost` (jika pakai port 80)
-   - `https://your-domain.com` (production - isi nanti)
+   - `http://localhost:9000` (Docker — DocumentRoot `/`)
+   - `http://localhost` (XAMPP htdocs/smartbk, port 80)
+   - `https://your-domain.com` (production)
    - `https://smk1leuwimunding.sch.id` (contoh domain sekolah)
-6. **Authorized redirect URIs** (WAJIB - harus persis sama dengan kode):
-   - `http://localhost:9000/smartbk/auth/google_callback.php`
-   - `http://localhost/smartbk/auth/google_callback.php`
-   - `https://your-domain.com/smartbk/auth/google_callback.php` (production)
-   - `https://smk1leuwimunding.sch.id/smartbk/auth/google_callback.php`
+6. **Authorized redirect URIs** (WAJIB - harus persis sama dengan `GOOGLE_REDIRECT_URI` di `.env`):
+   - `http://localhost:9000/auth/google_callback.php` (Docker, primary — tanpa `/smartbk`)
+   - `http://localhost:9000/smartbk/auth/google_callback.php` (Docker alias — kompatibilitas)
+   - `http://localhost/smartbk/auth/google_callback.php` (XAMPP htdocs/smartbk)
+   - `https://your-domain.com/auth/google_callback.php` atau `https://your-domain.com/smartbk/auth/google_callback.php` (production — sesuaikan DocumentRoot)
+   - `https://smk1leuwimunding.sch.id/auth/google_callback.php`
 7. Klik **CREATE**
 8. **SIMPAN KREDENSIAL**:
    - **Client ID**: `xxxxxxxxxx-xxxxxxxxxxxx.apps.googleusercontent.com`
@@ -84,9 +85,10 @@
    ```env
    GOOGLE_CLIENT_ID=xxxxxxxxxx-xxxxxxxxxxxx.apps.googleusercontent.com
    GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx
-   GOOGLE_REDIRECT_URI=http://localhost:9000/smartbk/auth/google_callback.php
+   # Docker: tanpa /smartbk  |  XAMPP: pakai /smartbk
+   GOOGLE_REDIRECT_URI=http://localhost:9000/auth/google_callback.php
    ```
-   > Sesuaikan `GOOGLE_REDIRECT_URI` dengan environment (dev/prod)
+   > Docker `DocumentRoot /var/www/html` → tanpa `/smartbk` (Alias `/smartbk` tetap didukung untuk kompatibilitas). XAMPP `htdocs/smartbk` → pakai `/smartbk`.
 
 ### 7. Install Dependencies
 ```bash
@@ -95,10 +97,10 @@ composer install
 Ini akan menginstall `google/apiclient` di folder `vendor/`.
 
 ### 8. Test Login
-1. Jalankan aplikasi: `http://localhost:9000/smartbk/login.php`
+1. Jalankan aplikasi: `http://localhost:9000/login` (Docker) atau `http://localhost/smartbk/login.php` (XAMPP)
 2. Klik tombol **"Masuk dengan Google"**
-3. Pilih akun `@belajar.id`
-4. Jika berhasil → redirect ke `register.php` (jika user baru) atau `dashboard.php` (jika sudah approved)
+3. Pilih akun `@belajar.id` / `@smk.belajar.id`
+4. Jika berhasil → pending approval (baru) atau `dashboard.php` (sudah approved)
 
 ---
 
